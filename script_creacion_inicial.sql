@@ -64,6 +64,9 @@ IF OBJECT_ID('FELICES_PASCUAS.Tipo_Butaca','U') IS NOT NULL
 IF OBJECT_ID('FELICES_PASCUAS.Avion','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.Avion;
 
+IF OBJECT_ID('FELICES_PASCUAS.Inconsistencia','U') IS NOT NULL
+	DROP TABLE FELICES_PASCUAS.Inconsistencia;
+
 -------------------- Eliminación del esquema ---------------------------
 
 IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'FELICES_PASCUAS')
@@ -100,22 +103,23 @@ create table FELICES_PASCUAS.Hotel(
 );
 
 create table FELICES_PASCUAS.Venta_Estadia(
-	venta_estadia_nro decimal(18,0) not null,
+	venta_estadia_id decimal(18,0) not null,
+	venta_estadia_factura decimal(18,0) not null,
 	venta_estadia_cargo_extra decimal (18,0),
 	venta_estadia_check_in datetime2(3),
 	venta_estadia_check_out datetime2(3)
 );
 
 create table FELICES_PASCUAS.Venta_Estadia_Habitacion(
-	venta_estadia_nro decimal(18,0) not null,
+	venta_estadia_id decimal(18,0) not null,
 	habitacion_id decimal(18,0) not null
 );
 
 create table FELICES_PASCUAS.Factura(
 	factura_nro decimal(18,0) not null,
 	factura_sucursal decimal(18,0),
-	factura_fecha datetime2(3),
-	factura_cliente decimal (18,0)
+	factura_cliente decimal (18,0),
+	factura_fecha datetime2(3)
 );
 
 create table FELICES_PASCUAS.Cliente(
@@ -130,21 +134,22 @@ create table FELICES_PASCUAS.Cliente(
 
 create table FELICES_PASCUAS.Compra_Estadia(
 	estadia_codigo decimal(18,0) not null,
-	estadia_numero_compra decimal(18,0),
 	estadia_fecha_compra datetime2(3),
-	estadia_cant_noches decimal(18,0),
+	estadia_numero_compra decimal(18,0),
 	estadia_fecha_inicio datetime2(3),
+	estadia_cant_noches decimal(18,0),
 	estadia_empresa decimal(18,0),
 );
 
 create table FELICES_PASCUAS.Venta_Pasaje(
-	venta_pasaje_nro decimal(18,0) not null,
+	venta_pasaje_id decimal(18,0) not null,
+	venta_pasaje_factura decimal(18,0) not null,
 	venta_pasaje_cargo_extra decimal(18,2)
 );
 
 create table FELICES_PASCUAS.Estadia_Habitacion(
-	habitacion_id decimal(18,0) not null,
-	estadia_codigo decimal(18,0) not null
+	estadia_codigo decimal(18,0) not null,
+	habitacion_id decimal(18,0) not null
 );
 
 create table FELICES_PASCUAS.Sucursal(
@@ -156,8 +161,8 @@ create table FELICES_PASCUAS.Sucursal(
 
 create table FELICES_PASCUAS.Compra_Pasaje(
 	c_pasaje_id decimal(18,0) not null,
-	c_pasaje_numero decimal(18,0),
-	c_pasaje_fecha datetime2(3)
+	c_pasaje_fecha datetime2(3),
+	c_pasaje_numero decimal(18,0)
 );
 
 create table FELICES_PASCUAS.Pasaje(
@@ -198,7 +203,7 @@ create table FELICES_PASCUAS.Vuelo(
 
 create table FELICES_PASCUAS.Tipo_Butaca(
 	tipo_butaca_codigo decimal(18,0) not null,
-	tipo_butaca_descripcion nvarchar(50)
+	tipo_butaca_descripcion nvarchar(255)
 );
 
 create table FELICES_PASCUAS.Avion(
@@ -213,13 +218,22 @@ create table FELICES_PASCUAS.Butaca(
 	butaca_avion nvarchar(50)
 );
 
+create table FELICES_PASCUAS.Inconsistencia(
+    inconsistencia_id decimal(18,0) not null,
+	inconsistencia_atributo nvarchar(50),
+	inconsistencia_detalle nvarchar(255)
+);
+
 -------------------- Creación de primary keys ---------------------------
+
+ALTER TABLE FELICES_PASCUAS.Inconsistencia? 
+ADD CONSTRAINT PK_Inconsistencia PRIMARY KEY (inconsistencia_id);?
 
 ALTER TABLE FELICES_PASCUAS.Tipo_Habitacion? 
 ADD CONSTRAINT PK_Tipo_Habitacion PRIMARY KEY (tipo_habitacion_codigo);?
 
 ALTER TABLE FELICES_PASCUAS.Venta_Estadia_Habitacion? 
-ADD CONSTRAINT PK_Venta_Estadia_Habitacion PRIMARY KEY (venta_estadia_nro, habitacion_id);?
+ADD CONSTRAINT PK_Venta_Estadia_Habitacion PRIMARY KEY (venta_estadia_id, habitacion_id);?
 
 ALTER TABLE FELICES_PASCUAS.Habitacion? 
 ADD CONSTRAINT PK_Habitacion PRIMARY KEY (habitacion_id);?
@@ -228,7 +242,7 @@ ALTER TABLE FELICES_PASCUAS.Estadia_Habitacion?
 ADD CONSTRAINT PK_Estadia_Habitacion PRIMARY KEY (habitacion_id, estadia_codigo);?
 
 ALTER TABLE FELICES_PASCUAS.Venta_Estadia? 
-ADD CONSTRAINT PK_Venta_Estadia PRIMARY KEY (venta_estadia_nro);?
+ADD CONSTRAINT PK_Venta_Estadia PRIMARY KEY (venta_estadia_id);?
 
 ALTER TABLE FELICES_PASCUAS.Factura? 
 ADD CONSTRAINT PK_Factura PRIMARY KEY (factura_nro);?
@@ -243,7 +257,7 @@ ALTER TABLE FELICES_PASCUAS.Compra_Estadia?
 ADD CONSTRAINT PK_Compra_Estadia? PRIMARY KEY (estadia_codigo);?
 
 ALTER TABLE FELICES_PASCUAS.Venta_Pasaje? 
-ADD CONSTRAINT PK_Venta_Pasaje PRIMARY KEY (venta_pasaje_nro);?
+ADD CONSTRAINT PK_Venta_Pasaje PRIMARY KEY (venta_pasaje_id);?
 
 ALTER TABLE FELICES_PASCUAS.Sucursal 
 ADD CONSTRAINT PK_Sucursal PRIMARY KEY (sucursal_id);?
@@ -287,7 +301,7 @@ ALTER TABLE FELICES_PASCUAS.Venta_Estadia_Habitacion ADD CONSTRAINT FK_VentaEsta
 FOREIGN KEY (habitacion_id) REFERENCES FELICES_PASCUAS.Habitacion(habitacion_id);?
 
 ALTER TABLE FELICES_PASCUAS.Venta_Estadia_Habitacion ADD CONSTRAINT FK_VentaEstadiaHabitacion_VentaEstadia
-FOREIGN KEY (venta_estadia_nro) REFERENCES FELICES_PASCUAS.Venta_Estadia(venta_estadia_nro);?
+FOREIGN KEY (venta_estadia_id) REFERENCES FELICES_PASCUAS.Venta_Estadia(venta_estadia_id);?
 
 ALTER TABLE FELICES_PASCUAS.Factura? ADD CONSTRAINT FK_Factura_Sucursal
 FOREIGN KEY (factura_sucursal) REFERENCES FELICES_PASCUAS.Sucursal(sucursal_id);?
@@ -296,10 +310,10 @@ ALTER TABLE FELICES_PASCUAS.Factura ADD CONSTRAINT FK_Factura_Cliente
 FOREIGN KEY (factura_cliente) REFERENCES FELICES_PASCUAS.Cliente(cliente_id);?
 
 ALTER TABLE FELICES_PASCUAS.Venta_Pasaje ADD CONSTRAINT FK_VentaPasaje_Factura
-FOREIGN KEY (venta_pasaje_nro) REFERENCES FELICES_PASCUAS.Factura(factura_nro);?
+FOREIGN KEY (venta_pasaje_factura) REFERENCES FELICES_PASCUAS.Factura(factura_nro);?
 
 ALTER TABLE FELICES_PASCUAS.Venta_Estadia ADD CONSTRAINT FK_VentaEstadia_Factura
-FOREIGN KEY (venta_estadia_nro) REFERENCES FELICES_PASCUAS.Factura(factura_nro);?
+FOREIGN KEY (venta_estadia_factura) REFERENCES FELICES_PASCUAS.Factura(factura_nro);?
 
 ALTER TABLE FELICES_PASCUAS.Estadia_Habitacion ADD CONSTRAINT FK_EstadiaHabitacion_Habitacion
 FOREIGN KEY (habitacion_id) REFERENCES FELICES_PASCUAS.Habitacion(habitacion_id);?
@@ -320,7 +334,7 @@ ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_CompraPasaje
 FOREIGN KEY (pasaje_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(c_pasaje_id);?
 
 ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_VentaPasaje
-FOREIGN KEY (pasaje_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_nro);?
+FOREIGN KEY (pasaje_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_id);?
 
 ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_Vuelo
 FOREIGN KEY (pasaje_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);?
@@ -433,3 +447,51 @@ from gd_esquema.Maestra m
 join FELICES_PASCUAS.Hotel h on h.hotel_calle = m.HOTEL_CALLE and h.hotel_nro_calle = m.HOTEL_NRO_CALLE and h.hotel_cant_estrellas = m.HOTEL_CANTIDAD_ESTRELLAS
 join FELICES_PASCUAS.Tipo_Habitacion th on th.tipo_habitacion_codigo = m.TIPO_HABITACION_CODIGO and th.tipo_habitacion_desc = m.TIPO_HABITACION_DESC
 group by h.hotel_id, m.HABITACION_NUMERO, m.HABITACION_PISO, m.HABITACION_FRENTE, th.tipo_habitacion_codigo, m.HABITACION_COSTO, m.HABITACION_PRECIO
+
+
+
+insert into FELICES_PASCUAS.Butaca
+select row_number() over (order by (select NULL)), m.BUTACA_NUMERO, tb.tipo_butaca_codigo, a.avion_identificador
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Avion a on a.avion_identificador = m.AVION_IDENTIFICADOR
+join FELICES_PASCUAS.Tipo_Butaca tb on tb.tipo_butaca_descripcion = m.BUTACA_TIPO
+group by m.BUTACA_NUMERO, tb.tipo_butaca_codigo, a.avion_identificador
+
+
+
+insert into FELICES_PASCUAS.Factura
+select m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Sucursal s on s.sucursal_direccion = m.SUCURSAL_DIR and s.sucursal_mail = m.SUCURSAL_MAIL and s.sucursal_telefono = m.SUCURSAL_TELEFONO
+join FELICES_PASCUAS.Cliente c on c.cliente_dni = m.CLIENTE_DNI and c.cliente_fecha_nacimiento = m.CLIENTE_FECHA_NAC
+where m.FACTURA_NRO is not null
+group by m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
+
+
+
+insert into FELICES_PASCUAS.Compra_Pasaje
+select row_number() over (order by (select NULL)), COMPRA_FECHA, COMPRA_NUMERO
+from gd_esquema.Maestra
+where pasaje_codigo is not null
+group by COMPRA_NUMERO, COMPRA_FECHA
+
+
+
+insert into FELICES_PASCUAS.Compra_Estadia
+select m.estadia_codigo, m.COMPRA_FECHA, m.COMPRA_NUMERO, m.ESTADIA_FECHA_INI, m.ESTADIA_CANTIDAD_NOCHES, e.empresa_id
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Empresa e on e.empresa_razon_social = m.EMPRESA_RAZON_SOCIAL
+where m.ESTADIA_CODIGO is not null
+group by m.estadia_codigo, m.COMPRA_FECHA, m.COMPRA_NUMERO, m.ESTADIA_CANTIDAD_NOCHES, m.ESTADIA_FECHA_INI, e.empresa_id
+order by m.estadia_codigo, m.COMPRA_FECHA, m.COMPRA_NUMERO, m.ESTADIA_CANTIDAD_NOCHES, m.ESTADIA_FECHA_INI, e.empresa_id
+
+
+
+insert into FELICES_PASCUAS.Estadia_Habitacion
+select m.estadia_codigo, h.habitacion_id
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Hotel ho on ho.hotel_calle = m.HOTEL_CALLE and ho.hotel_nro_calle = m.HOTEL_NRO_CALLE
+join FELICES_PASCUAS.Habitacion h on h.habitacion_numero = m.HABITACION_NUMERO and h.habitacion_hotel = ho.hotel_id
+join FELICES_PASCUAS.Compra_Estadia ce on ce.estadia_codigo = m.estadia_codigo
+group by m.estadia_codigo, h.habitacion_id
+order by h.habitacion_id, m.estadia_codigo
