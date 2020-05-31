@@ -226,136 +226,136 @@ create table FELICES_PASCUAS.Inconsistencia(
 
 -------------------- Creación de primary keys ---------------------------
 
-ALTER TABLE FELICES_PASCUAS.Inconsistencia? 
-ADD CONSTRAINT PK_Inconsistencia PRIMARY KEY (inconsistencia_id);?
+ALTER TABLE FELICES_PASCUAS.Inconsistencia 
+ADD CONSTRAINT PK_Inconsistencia PRIMARY KEY (inconsistencia_id);
 
-ALTER TABLE FELICES_PASCUAS.Tipo_Habitacion? 
-ADD CONSTRAINT PK_Tipo_Habitacion PRIMARY KEY (tipo_habitacion_codigo);?
+ALTER TABLE FELICES_PASCUAS.Tipo_Habitacion 
+ADD CONSTRAINT PK_Tipo_Habitacion PRIMARY KEY (tipo_habitacion_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Venta_Estadia_Habitacion? 
-ADD CONSTRAINT PK_Venta_Estadia_Habitacion PRIMARY KEY (venta_estadia_id, habitacion_id);?
+ALTER TABLE FELICES_PASCUAS.Venta_Estadia_Habitacion 
+ADD CONSTRAINT PK_Venta_Estadia_Habitacion PRIMARY KEY (venta_estadia_id, habitacion_id);
 
-ALTER TABLE FELICES_PASCUAS.Habitacion? 
-ADD CONSTRAINT PK_Habitacion PRIMARY KEY (habitacion_id);?
+ALTER TABLE FELICES_PASCUAS.Habitacion 
+ADD CONSTRAINT PK_Habitacion PRIMARY KEY (habitacion_id);
 
-ALTER TABLE FELICES_PASCUAS.Estadia_Habitacion? 
-ADD CONSTRAINT PK_Estadia_Habitacion PRIMARY KEY (habitacion_id, estadia_codigo);?
+ALTER TABLE FELICES_PASCUAS.Estadia_Habitacion 
+ADD CONSTRAINT PK_Estadia_Habitacion PRIMARY KEY (habitacion_id, estadia_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Venta_Estadia? 
-ADD CONSTRAINT PK_Venta_Estadia PRIMARY KEY (venta_estadia_id);?
+ALTER TABLE FELICES_PASCUAS.Venta_Estadia 
+ADD CONSTRAINT PK_Venta_Estadia PRIMARY KEY (venta_estadia_id);
 
-ALTER TABLE FELICES_PASCUAS.Factura? 
-ADD CONSTRAINT PK_Factura PRIMARY KEY (factura_nro);?
+ALTER TABLE FELICES_PASCUAS.Factura 
+ADD CONSTRAINT PK_Factura PRIMARY KEY (factura_nro);
 
-ALTER TABLE FELICES_PASCUAS.Cliente? 
-ADD CONSTRAINT PK_Cliente PRIMARY KEY (cliente_id);?
+ALTER TABLE FELICES_PASCUAS.Cliente 
+ADD CONSTRAINT PK_Cliente PRIMARY KEY (cliente_id);
 
-ALTER TABLE FELICES_PASCUAS.Hotel? 
-ADD CONSTRAINT PK_Hotel PRIMARY KEY (hotel_id);?
+ALTER TABLE FELICES_PASCUAS.Hotel 
+ADD CONSTRAINT PK_Hotel PRIMARY KEY (hotel_id);
 
-ALTER TABLE FELICES_PASCUAS.Compra_Estadia?
-ADD CONSTRAINT PK_Compra_Estadia? PRIMARY KEY (estadia_codigo);?
+ALTER TABLE FELICES_PASCUAS.Compra_Estadia
+ADD CONSTRAINT PK_Compra_Estadia PRIMARY KEY (estadia_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Venta_Pasaje? 
-ADD CONSTRAINT PK_Venta_Pasaje PRIMARY KEY (venta_pasaje_id);?
+ALTER TABLE FELICES_PASCUAS.Venta_Pasaje 
+ADD CONSTRAINT PK_Venta_Pasaje PRIMARY KEY (venta_pasaje_id);
 
 ALTER TABLE FELICES_PASCUAS.Sucursal 
-ADD CONSTRAINT PK_Sucursal PRIMARY KEY (sucursal_id);?
+ADD CONSTRAINT PK_Sucursal PRIMARY KEY (sucursal_id);
 
-ALTER TABLE FELICES_PASCUAS.Compra_Pasaje? 
-ADD CONSTRAINT PK_Compra_Pasaje PRIMARY KEY (c_pasaje_id);?
+ALTER TABLE FELICES_PASCUAS.Compra_Pasaje 
+ADD CONSTRAINT PK_Compra_Pasaje PRIMARY KEY (c_pasaje_id);
 
 ALTER TABLE FELICES_PASCUAS.Pasaje 
-ADD CONSTRAINT PK_Pasaje PRIMARY KEY (pasaje_codigo);?
+ADD CONSTRAINT PK_Pasaje PRIMARY KEY (pasaje_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Empresa? 
-ADD CONSTRAINT PK_Empresa PRIMARY KEY (empresa_id);?
+ALTER TABLE FELICES_PASCUAS.Empresa 
+ADD CONSTRAINT PK_Empresa PRIMARY KEY (empresa_id);
 
-ALTER TABLE FELICES_PASCUAS.Ciudad? 
-ADD CONSTRAINT PK_Ciudad PRIMARY KEY (ciudad_codigo);?
+ALTER TABLE FELICES_PASCUAS.Ciudad 
+ADD CONSTRAINT PK_Ciudad PRIMARY KEY (ciudad_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Ruta_Aerea 
-ADD CONSTRAINT PK_Ruta_Aerea PRIMARY KEY (ruta_aerea_id);?
+ADD CONSTRAINT PK_Ruta_Aerea PRIMARY KEY (ruta_aerea_id);
 
 ALTER TABLE FELICES_PASCUAS.Vuelo 
-ADD CONSTRAINT PK_Vuelo PRIMARY KEY (vuelo_codigo);?
+ADD CONSTRAINT PK_Vuelo PRIMARY KEY (vuelo_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Tipo_Butaca? 
-ADD CONSTRAINT PK_Tipo_Butaca PRIMARY KEY (tipo_butaca_codigo);?
+ALTER TABLE FELICES_PASCUAS.Tipo_Butaca 
+ADD CONSTRAINT PK_Tipo_Butaca PRIMARY KEY (tipo_butaca_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Avion 
-ADD CONSTRAINT PK_Avion PRIMARY KEY (avion_identificador);?
+ADD CONSTRAINT PK_Avion PRIMARY KEY (avion_identificador);
 
-ALTER TABLE FELICES_PASCUAS.Butaca? 
-ADD CONSTRAINT PK_Butaca PRIMARY KEY (butaca_id);?
+ALTER TABLE FELICES_PASCUAS.Butaca 
+ADD CONSTRAINT PK_Butaca PRIMARY KEY (butaca_id);
 
 -------------------- Creación de foreign keys ---------------------------
 
-ALTER TABLE FELICES_PASCUAS.Habitacion? ADD CONSTRAINT FK_Habitacion_Hotel 
-FOREIGN KEY (habitacion_hotel) REFERENCES FELICES_PASCUAS.Hotel(hotel_id);?
+ALTER TABLE FELICES_PASCUAS.Habitacion ADD CONSTRAINT FK_Habitacion_Hotel 
+FOREIGN KEY (habitacion_hotel) REFERENCES FELICES_PASCUAS.Hotel(hotel_id);
 
-ALTER TABLE FELICES_PASCUAS.Habitacion? ADD CONSTRAINT FK_Habitacion_TipoHabitacion
-FOREIGN KEY (habitacion_tipo) REFERENCES FELICES_PASCUAS.Tipo_Habitacion(tipo_habitacion_codigo);?
+ALTER TABLE FELICES_PASCUAS.Habitacion ADD CONSTRAINT FK_Habitacion_TipoHabitacion
+FOREIGN KEY (habitacion_tipo) REFERENCES FELICES_PASCUAS.Tipo_Habitacion(tipo_habitacion_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Venta_Estadia_Habitacion ADD CONSTRAINT FK_VentaEstadiaHabitacion_Habitacion
-FOREIGN KEY (habitacion_id) REFERENCES FELICES_PASCUAS.Habitacion(habitacion_id);?
+FOREIGN KEY (habitacion_id) REFERENCES FELICES_PASCUAS.Habitacion(habitacion_id);
 
 ALTER TABLE FELICES_PASCUAS.Venta_Estadia_Habitacion ADD CONSTRAINT FK_VentaEstadiaHabitacion_VentaEstadia
-FOREIGN KEY (venta_estadia_id) REFERENCES FELICES_PASCUAS.Venta_Estadia(venta_estadia_id);?
+FOREIGN KEY (venta_estadia_id) REFERENCES FELICES_PASCUAS.Venta_Estadia(venta_estadia_id);
 
-ALTER TABLE FELICES_PASCUAS.Factura? ADD CONSTRAINT FK_Factura_Sucursal
-FOREIGN KEY (factura_sucursal) REFERENCES FELICES_PASCUAS.Sucursal(sucursal_id);?
+ALTER TABLE FELICES_PASCUAS.Factura ADD CONSTRAINT FK_Factura_Sucursal
+FOREIGN KEY (factura_sucursal) REFERENCES FELICES_PASCUAS.Sucursal(sucursal_id);
 
 ALTER TABLE FELICES_PASCUAS.Factura ADD CONSTRAINT FK_Factura_Cliente
-FOREIGN KEY (factura_cliente) REFERENCES FELICES_PASCUAS.Cliente(cliente_id);?
+FOREIGN KEY (factura_cliente) REFERENCES FELICES_PASCUAS.Cliente(cliente_id);
 
 ALTER TABLE FELICES_PASCUAS.Venta_Pasaje ADD CONSTRAINT FK_VentaPasaje_Factura
-FOREIGN KEY (venta_pasaje_factura) REFERENCES FELICES_PASCUAS.Factura(factura_nro);?
+FOREIGN KEY (venta_pasaje_factura) REFERENCES FELICES_PASCUAS.Factura(factura_nro);
 
 ALTER TABLE FELICES_PASCUAS.Venta_Estadia ADD CONSTRAINT FK_VentaEstadia_Factura
-FOREIGN KEY (venta_estadia_factura) REFERENCES FELICES_PASCUAS.Factura(factura_nro);?
+FOREIGN KEY (venta_estadia_factura) REFERENCES FELICES_PASCUAS.Factura(factura_nro);
 
 ALTER TABLE FELICES_PASCUAS.Estadia_Habitacion ADD CONSTRAINT FK_EstadiaHabitacion_Habitacion
-FOREIGN KEY (habitacion_id) REFERENCES FELICES_PASCUAS.Habitacion(habitacion_id);?
+FOREIGN KEY (habitacion_id) REFERENCES FELICES_PASCUAS.Habitacion(habitacion_id);
 
 ALTER TABLE FELICES_PASCUAS.Estadia_Habitacion ADD CONSTRAINT FK_EstadiaHabitacion_Estadia
-FOREIGN KEY (estadia_codigo) REFERENCES FELICES_PASCUAS.Compra_Estadia(estadia_codigo);?
+FOREIGN KEY (estadia_codigo) REFERENCES FELICES_PASCUAS.Compra_Estadia(estadia_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Compra_Estadia ADD CONSTRAINT FK_CompraEstadia_Empresa
-FOREIGN KEY (estadia_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);?
+FOREIGN KEY (estadia_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_Butaca
-FOREIGN KEY (pasaje_butaca) REFERENCES FELICES_PASCUAS.Butaca(butaca_id);?
+ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_Butaca
+FOREIGN KEY (pasaje_butaca) REFERENCES FELICES_PASCUAS.Butaca(butaca_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_Empresa
-FOREIGN KEY (pasaje_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);?
+ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_Empresa
+FOREIGN KEY (pasaje_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_CompraPasaje
-FOREIGN KEY (pasaje_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(c_pasaje_id);?
+ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_CompraPasaje
+FOREIGN KEY (pasaje_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(c_pasaje_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_VentaPasaje
-FOREIGN KEY (pasaje_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_id);?
+ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_VentaPasaje
+FOREIGN KEY (pasaje_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje? ADD CONSTRAINT FK_Pasaje_Vuelo
-FOREIGN KEY (pasaje_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);?
+ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_Vuelo
+FOREIGN KEY (pasaje_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Ruta_Aerea? ADD CONSTRAINT FK_RutaAerea_CiudadO
-FOREIGN KEY (ruta_aerea_ciu_orig) REFERENCES FELICES_PASCUAS.Ciudad(ciudad_codigo);?
+ALTER TABLE FELICES_PASCUAS.Ruta_Aerea ADD CONSTRAINT FK_RutaAerea_CiudadO
+FOREIGN KEY (ruta_aerea_ciu_orig) REFERENCES FELICES_PASCUAS.Ciudad(ciudad_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Ruta_Aerea? ADD CONSTRAINT FK_RutaAerea_CiudadD
-FOREIGN KEY (ruta_aerea_ciu_dest) REFERENCES FELICES_PASCUAS.Ciudad(ciudad_codigo);?
+ALTER TABLE FELICES_PASCUAS.Ruta_Aerea ADD CONSTRAINT FK_RutaAerea_CiudadD
+FOREIGN KEY (ruta_aerea_ciu_dest) REFERENCES FELICES_PASCUAS.Ciudad(ciudad_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Vuelo? ADD CONSTRAINT FK_Vuelo_RutaAerea
-FOREIGN KEY (vuelo_ruta_aerea) REFERENCES FELICES_PASCUAS.Ruta_Aerea(ruta_aerea_id);?
+ALTER TABLE FELICES_PASCUAS.Vuelo ADD CONSTRAINT FK_Vuelo_RutaAerea
+FOREIGN KEY (vuelo_ruta_aerea) REFERENCES FELICES_PASCUAS.Ruta_Aerea(ruta_aerea_id);
 
-ALTER TABLE FELICES_PASCUAS.Vuelo? ADD CONSTRAINT FK_Vuelo_Avion
-FOREIGN KEY (vuelo_avion) REFERENCES FELICES_PASCUAS.Avion(avion_identificador);?
+ALTER TABLE FELICES_PASCUAS.Vuelo ADD CONSTRAINT FK_Vuelo_Avion
+FOREIGN KEY (vuelo_avion) REFERENCES FELICES_PASCUAS.Avion(avion_identificador);
 
-ALTER TABLE FELICES_PASCUAS.Butaca? ADD CONSTRAINT FK_Butaca_Avion
-FOREIGN KEY (butaca_avion) REFERENCES FELICES_PASCUAS.Avion(avion_identificador);?
+ALTER TABLE FELICES_PASCUAS.Butaca ADD CONSTRAINT FK_Butaca_Avion
+FOREIGN KEY (butaca_avion) REFERENCES FELICES_PASCUAS.Avion(avion_identificador);
 
-ALTER TABLE FELICES_PASCUAS.Butaca? ADD CONSTRAINT FK_Butaca_TipoButaca
-FOREIGN KEY (butaca_tipo) REFERENCES FELICES_PASCUAS.Tipo_Butaca(tipo_butaca_codigo);?
+ALTER TABLE FELICES_PASCUAS.Butaca ADD CONSTRAINT FK_Butaca_TipoButaca
+FOREIGN KEY (butaca_tipo) REFERENCES FELICES_PASCUAS.Tipo_Butaca(tipo_butaca_codigo);
 
 
 -------------------- Migración de tablas ---------------------------
