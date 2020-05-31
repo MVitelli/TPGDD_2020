@@ -87,7 +87,7 @@ create table FELICES_PASCUAS.Tipo_Habitacion(
 create table FELICES_PASCUAS.Habitacion(
 	habitacion_id decimal(18,0) not null,
 	habitacion_hotel decimal(18,0) not null,
-	habitacion_tipo decimal(18,0),
+	habitacion_tipo decimal(18,0) not null,
 	habitacion_numero decimal(18,0) not null,
 	habitacion_piso decimal(18,0),
 	habitacion_frente nvarchar(50),
@@ -117,8 +117,8 @@ create table FELICES_PASCUAS.Venta_Estadia_Habitacion(
 
 create table FELICES_PASCUAS.Factura(
 	factura_nro decimal(18,0) not null,
-	factura_sucursal decimal(18,0),
-	factura_cliente decimal (18,0),
+	factura_sucursal decimal(18,0) not null,
+	factura_cliente decimal (18,0) not null,
 	factura_fecha datetime2(3)
 );
 
@@ -138,7 +138,7 @@ create table FELICES_PASCUAS.Compra_Estadia(
 	estadia_numero_compra decimal(18,0),
 	estadia_fecha_inicio datetime2(3),
 	estadia_cant_noches decimal(18,0),
-	estadia_empresa decimal(18,0),
+	estadia_empresa decimal(18,0) not null,
 );
 
 create table FELICES_PASCUAS.Venta_Pasaje(
@@ -160,20 +160,20 @@ create table FELICES_PASCUAS.Sucursal(
 );
 
 create table FELICES_PASCUAS.Compra_Pasaje(
-	c_pasaje_id decimal(18,0) not null,
-	c_pasaje_fecha datetime2(3),
-	c_pasaje_numero decimal(18,0)
+	compra_pasaje_id decimal(18,0) not null,
+	compra_pasaje_fecha datetime2(3),
+	compra_pasaje_numero decimal(18,0)
 );
 
 create table FELICES_PASCUAS.Pasaje(
 	pasaje_codigo decimal(18,0) not null,
-	pasaje_empresa decimal(18,0),
-	pasaje_butaca decimal(18,0),
+	pasaje_empresa decimal(18,0) not null,
+	pasaje_butaca decimal(18,0) not null,
 	pasaje_costo decimal(18,2),
 	pasaje_precio decimal (18,2),
-	pasaje_compra decimal(18,0),
+	pasaje_compra decimal(18,0) not null,
 	pasaje_venta decimal(18,0),
-	pasaje_vuelo decimal(18,0)
+	pasaje_vuelo decimal(18,0) not null
 );
 
 create table FELICES_PASCUAS.Empresa(
@@ -189,16 +189,16 @@ create table FELICES_PASCUAS.Ciudad(
 create table FELICES_PASCUAS.Ruta_Aerea(
 	ruta_aerea_id decimal(18,0) not null,
 	ruta_aerea_codigo decimal(18,0),
-	ruta_aerea_ciu_orig decimal(18,0),
-	ruta_aerea_ciu_dest decimal(18,0)
+	ruta_aerea_ciu_orig decimal(18,0) not null,
+	ruta_aerea_ciu_dest decimal(18,0) not null
 );
 
 create table FELICES_PASCUAS.Vuelo(
 	vuelo_codigo decimal(18,0) not null,
 	vuelo_fecha_salida datetime2(3),
 	vuelo_fecha_llegada datetime2(3),
-	vuelo_ruta_aerea decimal (18,0),
-	vuelo_avion nvarchar(50)
+	vuelo_ruta_aerea decimal (18,0) not null,
+	vuelo_avion nvarchar(50) not null
 );
 
 create table FELICES_PASCUAS.Tipo_Butaca(
@@ -215,7 +215,7 @@ create table FELICES_PASCUAS.Butaca(
 	butaca_id decimal(18,0) not null,
 	butaca_numero decimal(18,0),
 	butaca_tipo decimal(18,0),
-	butaca_avion nvarchar(50)
+	butaca_avion nvarchar(50) not null
 );
 
 create table FELICES_PASCUAS.Inconsistencia(
@@ -263,7 +263,7 @@ ALTER TABLE FELICES_PASCUAS.Sucursal
 ADD CONSTRAINT PK_Sucursal PRIMARY KEY (sucursal_id);
 
 ALTER TABLE FELICES_PASCUAS.Compra_Pasaje 
-ADD CONSTRAINT PK_Compra_Pasaje PRIMARY KEY (c_pasaje_id);
+ADD CONSTRAINT PK_Compra_Pasaje PRIMARY KEY (compra_pasaje_id);
 
 ALTER TABLE FELICES_PASCUAS.Pasaje 
 ADD CONSTRAINT PK_Pasaje PRIMARY KEY (pasaje_codigo);
@@ -331,7 +331,7 @@ ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_Empresa
 FOREIGN KEY (pasaje_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);
 
 ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_CompraPasaje
-FOREIGN KEY (pasaje_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(c_pasaje_id);
+FOREIGN KEY (pasaje_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(compra_pasaje_id);
 
 ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_VentaPasaje
 FOREIGN KEY (pasaje_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_id);
