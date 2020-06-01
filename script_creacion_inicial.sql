@@ -370,9 +370,12 @@ group by EMPRESA_RAZON_SOCIAL
 insert into FELICES_PASCUAS.Ciudad
 select row_number() over (order by (select NULL)), RUTA_AEREA_CIU_ORIG
 from gd_esquema.Maestra
+where RUTA_AEREA_CIU_ORIG is not null
 group by RUTA_AEREA_CIU_ORIG
 
-
+--faltaba chequear que no sea null la ciudad_orig
+--No sé si es necesario hacer el UNION de ciu_orig y ciu_dest porque podría darse el caso que uno esté en una y no en la otra
+--Yo lo hice por mi cuenta y da igual el count pero me queda la duda
 
 insert into FELICES_PASCUAS.Avion
 select AVION_IDENTIFICADOR, AVION_MODELO
@@ -403,7 +406,6 @@ select row_number() over (order by (select NULL)), CLIENTE_DNI, CLIENTE_APELLIDO
 from gd_esquema.Maestra
 where CLIENTE_DNI is not null
 group BY CLIENTE_DNI, CLIENTE_APELLIDO, CLIENTE_NOMBRE, CLIENTE_FECHA_NAC, CLIENTE_MAIL, CLIENTE_TELEFONO
-
 
 
 insert into FELICES_PASCUAS.Hotel
@@ -445,7 +447,7 @@ insert into FELICES_PASCUAS.Habitacion
 select row_number() over (order by (select NULL)), h.hotel_id, th.tipo_habitacion_codigo, m.HABITACION_NUMERO, m.HABITACION_PISO, m.HABITACION_FRENTE, m.HABITACION_COSTO, m.HABITACION_PRECIO
 from gd_esquema.Maestra m
 join FELICES_PASCUAS.Hotel h on h.hotel_calle = m.HOTEL_CALLE and h.hotel_nro_calle = m.HOTEL_NRO_CALLE and h.hotel_cant_estrellas = m.HOTEL_CANTIDAD_ESTRELLAS
-join FELICES_PASCUAS.Tipo_Habitacion th on th.tipo_habitacion_codigo = m.TIPO_HABITACION_CODIGO and th.tipo_habitacion_desc = m.TIPO_HABITACION_DESC
+join FELICES_PASCUAS.Tipo_Habitacion th on th.tipo_habitacion_codigo = m.TIPO_HABITACION_CODIGO --and th.tipo_habitacion_desc = m.TIPO_HABITACION_DESC
 group by h.hotel_id, m.HABITACION_NUMERO, m.HABITACION_PISO, m.HABITACION_FRENTE, th.tipo_habitacion_codigo, m.HABITACION_COSTO, m.HABITACION_PRECIO
 
 
@@ -464,8 +466,16 @@ select m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
 from gd_esquema.Maestra m
 join FELICES_PASCUAS.Sucursal s on s.sucursal_direccion = m.SUCURSAL_DIR and s.sucursal_mail = m.SUCURSAL_MAIL and s.sucursal_telefono = m.SUCURSAL_TELEFONO
 join FELICES_PASCUAS.Cliente c on c.cliente_dni = m.CLIENTE_DNI and c.cliente_fecha_nacimiento = m.CLIENTE_FECHA_NAC
+--join FELICES_PASCUAS.Cliente c on c.cliente_dni = m.CLIENTE_DNI and c.cliente_apellido = m.CLIENTE_APELLIDO
 where m.FACTURA_NRO is not null
 group by m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
+--acá el join con cliente podría ser por también por DNI + Apellido, tu join me da 237522 y el mío 237528, esto significa que hay
+--más de un tipo con un dni + apellido iguales y solo un tipo con DNI + fecha de nacimiento. Habría que aclarar que
+--select CLIENTE_DNI, CLIENTE_FECHA_NAC, count(*) from gd_esquema.Maestra
+--where cliente_dni is not null
+--group by CLIENTE_DNI, CLIENTE_FECHA_NAC
+--having count(*) > 1
+--no devuelve resultados y el otro sí
 
 
 
