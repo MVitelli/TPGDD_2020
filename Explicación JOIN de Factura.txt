@@ -1,0 +1,87 @@
+--acá el join con cliente podría ser por también por DNI + Apellido, tu join me da 237522 y el mío 237528, esto significa que hay
+--más de un tipo con un dni + apellido iguales y solo un tipo con DNI + fecha de nacimiento. Habría que aclarar que
+--select CLIENTE_DNI, CLIENTE_FECHA_NAC, count(*) from gd_esquema.Maestra
+--where cliente_dni is not null
+--group by CLIENTE_DNI, CLIENTE_FECHA_NAC
+--having count(*) > 1
+--no devuelve resultados y el otro sí
+
+/*
+Para mí es así: Si nosotros ejecutamos lo siguiente, nos va a dar todos los clientes con igual dni y apellido
+
+select CLIENTE_DNI, CLIENTE_APELLIDO, count(*) from gd_esquema.Maestra
+where cliente_dni is not null
+group by CLIENTE_DNI, CLIENTE_APELLIDO
+having count(*) > 1
+
+dni			apell		count*
+78749448	Bravo		2
+60512110	Navarro		2
+61452047	Palma		2
+
+En la tabla maestra nos fijamos que factura_nro les corresponden a esos clientes:
+
+select  *
+from gd_esquema.Maestra
+where cliente_dni in (78749448,60512110,61452047)
+
+y verificas que efectivamente cada cliente tiene su propio nro de factura
+
+fac_nro		clie_ap		clie_nom    clie_dni
+60187926	Palma		ANACLARA	61452047
+60195369	Palma		AKEEM		61452047
+60199509	Bravo		ILANA		78749448
+60204527	Navarro		MÍA			60512110
+60287731	Bravo		ARAMI		78749448
+60321274	Navarro		VIDAL		60512110
+
+
+Si vos joineas de esta manera:
+
+select m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Sucursal s on s.sucursal_direccion = m.SUCURSAL_DIR and s.sucursal_mail = m.SUCURSAL_MAIL and s.sucursal_telefono = m.SUCURSAL_TELEFONO
+join FELICES_PASCUAS.Cliente c on c.cliente_dni = m.CLIENTE_DNI and c.cliente_apellido = m.CLIENTE_APELLIDO
+where m.FACTURA_NRO is not null
+group by m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
+
+En esos casos te va a duplicar la atomicidad (por cada nro de factura va a detectar 2 clientes distintos, ya que tienen dni y apellido iguales)
+
+fac_nro		fact_suc	clie_id		fact_fecha
+60187926	4			144748		2018-02-25 00:00:00.000
+60187926	4			144749		2018-02-25 00:00:00.000
+60195369	2			144748		2018-02-05 00:00:00.000
+60195369	2			144749		2018-02-05 00:00:00.000
+60199509	1			186296		2018-05-14 00:00:00.000
+60199509	1			186297		2018-05-14 00:00:00.000
+60204527	2			142465		2018-03-30 00:00:00.000
+60204527	2			142466		2018-03-30 00:00:00.000
+60287731	3			186296		2018-06-04 00:00:00.000
+60287731	3			186297		2018-06-04 00:00:00.000
+60321274	2			142465		2018-02-28 00:00:00.000
+60321274	2			142466		2018-02-28 00:00:00.000
+
+
+En cambio, si vos joineas de esta manera:
+
+select m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Sucursal s on s.sucursal_direccion = m.SUCURSAL_DIR and s.sucursal_mail = m.SUCURSAL_MAIL and s.sucursal_telefono = m.SUCURSAL_TELEFONO
+join FELICES_PASCUAS.Cliente c on c.cliente_dni = m.CLIENTE_DNI and c.cliente_fecha_nacimiento = m.CLIENTE_FECHA_NAC
+where m.FACTURA_NRO is not null
+group by m.FACTURA_NRO, s.sucursal_id, c.cliente_id, m.FACTURA_FECHA
+
+La query te va a dar correctamente los datos ya que para una factura_nro no van a haber 2 clientes con dni y f_nac iguales
+
+fac_nro		fact_suc	clie_id		fact_fecha
+60187926	4			144749		2018-02-25 00:00:00.000
+60195369	2			144748		2018-02-05 00:00:00.000
+60199509	1			186297		2018-05-14 00:00:00.000
+60204527	2			142465		2018-03-30 00:00:00.000
+60287731	3			186296		2018-06-04 00:00:00.000
+60321274	2			142466		2018-02-28 00:00:00.000
+
+Y es justamente lo que coincide con los datos de la tabla maestra que está más arriba. Por eso la forma correcta para mí
+es joinear cliente con dni y fecha_nac ya que nunca se va a repetir los clientes
+*/
+
