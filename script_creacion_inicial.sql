@@ -22,6 +22,9 @@ IF OBJECT_ID('FELICES_PASCUAS.Venta_Estadia','U') IS NOT NULL
 IF OBJECT_ID('FELICES_PASCUAS.Pasaje','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.Pasaje;
 
+IF OBJECT_ID('FELICES_PASCUAS.Pasaje_Anomalo','U') IS NOT NULL
+	DROP TABLE FELICES_PASCUAS.Pasaje_Anomalo;
+
 IF OBJECT_ID('FELICES_PASCUAS.Venta_Pasaje','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.Venta_Pasaje;
 
@@ -66,9 +69,6 @@ IF OBJECT_ID('FELICES_PASCUAS.Avion','U') IS NOT NULL
 
 IF OBJECT_ID('FELICES_PASCUAS.Inconsistencia','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.Inconsistencia;
-
-IF OBJECT_ID('FELICES_PASCUAS.Pasaje_Anomalo','U') IS NOT NULL
-	DROP TABLE FELICES_PASCUAS.Pasaje_Anomalo;
 
 -------------------- Eliminación del esquema ---------------------------
 
@@ -283,7 +283,7 @@ ALTER TABLE FELICES_PASCUAS.Pasaje
 ADD CONSTRAINT PK_Pasaje PRIMARY KEY (pasaje_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo 
-ADD CONSTRAINT PK_Pasaje PRIMARY KEY (pasaje_anomalo_codigo);
+ADD CONSTRAINT PK_Pasaje_Anomalo PRIMARY KEY (pasaje_anomalo_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Empresa 
 ADD CONSTRAINT PK_Empresa PRIMARY KEY (empresa_id);
@@ -356,20 +356,20 @@ FOREIGN KEY (pasaje_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_
 ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_Vuelo
 FOREIGN KEY (pasaje_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_pasaje_Anomalo_Butaca
-FOREIGN KEY (Pasaje_Anomalo_butaca) REFERENCES FELICES_PASCUAS.Butaca(butaca_id);
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_PasajeAnomalo_Butaca
+FOREIGN KEY (pasaje_anomalo_butaca) REFERENCES FELICES_PASCUAS.Butaca(butaca_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_Empresa
-FOREIGN KEY (Pasaje_Anomalo_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_PasajeAnomalo_Empresa
+FOREIGN KEY (pasaje_anomalo_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_CompraPasaje
-FOREIGN KEY (Pasaje_Anomalo_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(compra_pasaje_id);
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_PasajeAnomalo_CompraPasaje
+FOREIGN KEY (pasaje_anomalo_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(compra_pasaje_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_VentaPasaje
-FOREIGN KEY (Pasaje_Anomalo_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_id);
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_PasajeAnomalo_VentaPasaje
+FOREIGN KEY (pasaje_anomalo_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_id);
 
-ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_Vuelo
-FOREIGN KEY (Pasaje_Anomalo_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_PasajeAnomalo_Vuelo
+FOREIGN KEY (pasaje_anomalo_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Ruta_Aerea ADD CONSTRAINT FK_RutaAerea_CiudadO
 FOREIGN KEY (ruta_aerea_ciu_orig) REFERENCES FELICES_PASCUAS.Ciudad(ciudad_codigo);
@@ -581,5 +581,11 @@ group by fa.factura_nro
 --select BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA, count(*) as repetidos
 --from gd_esquema.Maestra
 --where BUTACA_NUMERO is not null
+--group by BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA
+--having count(*) > 2
+
+--select BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA, count(*) as repetidos
+--from gd_esquema.Maestra
+--where BUTACA_NUMERO is not null and FACTURA_NRO is not null
 --group by BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA
 --having count(*) > 2
