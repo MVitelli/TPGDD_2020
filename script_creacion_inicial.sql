@@ -67,6 +67,9 @@ IF OBJECT_ID('FELICES_PASCUAS.Avion','U') IS NOT NULL
 IF OBJECT_ID('FELICES_PASCUAS.Inconsistencia','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.Inconsistencia;
 
+IF OBJECT_ID('FELICES_PASCUAS.Pasaje_Anomalo','U') IS NOT NULL
+	DROP TABLE FELICES_PASCUAS.Pasaje_Anomalo;
+
 -------------------- Eliminación del esquema ---------------------------
 
 IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'FELICES_PASCUAS')
@@ -224,6 +227,17 @@ create table FELICES_PASCUAS.Inconsistencia(
 	inconsistencia_detalle nvarchar(255)
 );
 
+create table FELICES_PASCUAS.Pasaje_Anomalo(
+	pasaje_anomalo_codigo decimal(18,0) not null,
+	pasaje_anomalo_empresa decimal(18,0) not null,
+	pasaje_anomalo_butaca decimal(18,0) not null,
+	pasaje_anomalo_costo decimal(18,2),
+	pasaje_anomalo_precio decimal (18,2),
+	pasaje_anomalo_compra decimal(18,0) not null,
+	pasaje_anomalo_venta decimal(18,0),
+	pasaje_anomalo_vuelo decimal(18,0) not null
+);
+
 -------------------- Creación de primary keys ---------------------------
 
 ALTER TABLE FELICES_PASCUAS.Inconsistencia 
@@ -267,6 +281,9 @@ ADD CONSTRAINT PK_Compra_Pasaje PRIMARY KEY (compra_pasaje_id);
 
 ALTER TABLE FELICES_PASCUAS.Pasaje 
 ADD CONSTRAINT PK_Pasaje PRIMARY KEY (pasaje_codigo);
+
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo 
+ADD CONSTRAINT PK_Pasaje PRIMARY KEY (pasaje_anomalo_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Empresa 
 ADD CONSTRAINT PK_Empresa PRIMARY KEY (empresa_id);
@@ -338,6 +355,21 @@ FOREIGN KEY (pasaje_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_
 
 ALTER TABLE FELICES_PASCUAS.Pasaje ADD CONSTRAINT FK_Pasaje_Vuelo
 FOREIGN KEY (pasaje_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);
+
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_pasaje_Anomalo_Butaca
+FOREIGN KEY (Pasaje_Anomalo_butaca) REFERENCES FELICES_PASCUAS.Butaca(butaca_id);
+
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_Empresa
+FOREIGN KEY (Pasaje_Anomalo_empresa) REFERENCES FELICES_PASCUAS.Empresa(empresa_id);
+
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_CompraPasaje
+FOREIGN KEY (Pasaje_Anomalo_compra) REFERENCES FELICES_PASCUAS.Compra_Pasaje(compra_pasaje_id);
+
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_VentaPasaje
+FOREIGN KEY (Pasaje_Anomalo_venta) REFERENCES FELICES_PASCUAS.Venta_Pasaje(venta_pasaje_id);
+
+ALTER TABLE FELICES_PASCUAS.Pasaje_Anomalo ADD CONSTRAINT FK_Pasaje_Anomalo_Vuelo
+FOREIGN KEY (Pasaje_Anomalo_vuelo) REFERENCES FELICES_PASCUAS.Vuelo(vuelo_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Ruta_Aerea ADD CONSTRAINT FK_RutaAerea_CiudadO
 FOREIGN KEY (ruta_aerea_ciu_orig) REFERENCES FELICES_PASCUAS.Ciudad(ciudad_codigo);
@@ -495,3 +527,59 @@ join FELICES_PASCUAS.Habitacion h on h.habitacion_numero = m.HABITACION_NUMERO a
 join FELICES_PASCUAS.Compra_Estadia ce on ce.estadia_codigo = m.estadia_codigo
 group by m.estadia_codigo, h.habitacion_id
 order by h.habitacion_id, m.estadia_codigo
+
+
+
+insert into FELICES_PASCUAS.Venta_Estadia
+select row_number() over (order by (select NULL)), fa.FACTURA_NRO, sum(m.HABITACION_PRECIO) * 0.2, ce.estadia_fecha_inicio, DATEADD(day,ce.estadia_cant_noches,ce.estadia_fecha_inicio)
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Factura fa on fa.factura_nro = m.FACTURA_NRO
+join FELICES_PASCUAS.Compra_Estadia ce on ce.estadia_codigo = m.ESTADIA_CODIGO 
+group by fa.factura_nro, ce.estadia_fecha_inicio, ce.estadia_cant_noches
+order by fa.factura_nro, ce.estadia_fecha_inicio
+
+
+
+insert into FELICES_PASCUAS.Venta_Estadia_Habitacion
+select ve.venta_estadia_id, ha.habitacion_id
+from gd_esquema.Maestra ma 
+join FELICES_PASCUAS.Venta_Estadia ve on ve.venta_estadia_factura = ma.FACTURA_NRO
+join FELICES_PASCUAS.Hotel ho on ho.hotel_calle = ma.HOTEL_CALLE and ho.hotel_cant_estrellas = ma.HOTEL_CANTIDAD_ESTRELLAS and ho.hotel_nro_calle = ma.HOTEL_NRO_CALLE
+join FELICES_PASCUAS.Habitacion ha on ha.habitacion_numero = ma.HABITACION_NUMERO and ha.habitacion_hotel = ho.hotel_id
+group by ve.venta_estadia_id, ha.habitacion_id
+
+
+
+insert into FELICES_PASCUAS.Venta_Pasaje
+select row_number() over (order by (select NULL)), fa.factura_nro, sum(m.PASAJE_PRECIO) * 0.2
+from gd_esquema.Maestra m
+join FELICES_PASCUAS.Factura fa on fa.factura_nro = m.FACTURA_NRO
+where ESTADIA_CODIGO is null
+group by fa.factura_nro
+
+
+--pasaje
+--pasaje_codigo/pasaje_empresa/pasaje_butaca/pasaje_costo/pasaje_precio/pasaje_vuelo/pasaje_venta/pasaje_compra
+
+
+--inconsistencias
+
+--Hola como estas? nono eso esta fuera del alcance del TP, no es solucionar a nivel lógico sino a nivel base de datos, 
+--básicamente se tiene que contemplar estos casos que se identificaron en la base de datos cuando hagan la migración,
+--por ejemplo marcarlos de algún modo con una marca, usar otra estructura en particular para ese caso etc estrategias de ese estilo, 
+--para que despues (y eso en un trabajo real) se resuelvan con mas información que no tienen ustedes en este TP. Saludos.
+
+--SELECT * FROM [GD1C2020].[gd_esquema].[Maestra]
+--WHERE COMPRA_NUMERO LIKE 53082573
+--AND BUTACA_NUMERO LIKE 49
+
+--Estrategia para butacas ya vendidas
+--1. Agregar campo a tabla Pasaje - Repetido que sea un bit y marcar por orden de fecha de factura. Poner como default false en la columna
+--2. Crear tabla PasajeAnomalo/PasajeRepetido que tenga los mismos campos que Pasaje donde insertamos el segundo registro / el repetido.
+--En ambos recorremos dos veces la tabla maestra para la mismos pasajes.
+
+--select BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA, count(*) as repetidos
+--from gd_esquema.Maestra
+--where BUTACA_NUMERO is not null
+--group by BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA
+--having count(*) > 2
