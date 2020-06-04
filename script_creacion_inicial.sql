@@ -574,7 +574,7 @@ group by fa.factura_nro
 --AND BUTACA_NUMERO LIKE 49
 
 --Estrategia para butacas ya vendidas
---1. Agregar campo a tabla Pasaje - Repetido que sea un bit y marcar por orden de fecha de factura. Poner como default false en la columna
+--1. Agregar campo a tabla Pasaje llamado 'Repetido' que sea un bit/bool y tomar por orden de fecha de factura (el que compró primero es el que vale, el otro lo asignamos como anómalo). Poner como default false en la columna
 --2. Crear tabla PasajeAnomalo/PasajeRepetido que tenga los mismos campos que Pasaje donde insertamos el segundo registro / el repetido.
 --En ambos recorremos dos veces la tabla maestra para la mismos pasajes.
 
