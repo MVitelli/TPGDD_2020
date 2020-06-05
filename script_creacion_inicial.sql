@@ -558,11 +558,34 @@ where ESTADIA_CODIGO is null
 group by fa.factura_nro
 
 
---pasaje
---pasaje_codigo/pasaje_empresa/pasaje_butaca/pasaje_costo/pasaje_precio/pasaje_vuelo/pasaje_venta/pasaje_compra
+--PASAJE
+--INSERT: todos los pasajes con NULL en la FK de venta_pasaje
+insert into FELICES_PASCUAS.Pasaje
+select ma.PASAJE_CODIGO, e.empresa_id, b.butaca_id, ma.PASAJE_COSTO, ma.PASAJE_PRECIO, cp.compra_pasaje_id, NULL, v.vuelo_codigo
+from gd_esquema.Maestra ma
+join FELICES_PASCUAS.Empresa e on ma.EMPRESA_RAZON_SOCIAL = e.empresa_razon_social
+join FELICES_PASCUAS.Avion a on ma.AVION_IDENTIFICADOR = a.avion_identificador
+join FELICES_PASCUAS.Tipo_Butaca tb on ma.BUTACA_TIPO = tb.tipo_butaca_descripcion
+join FELICES_PASCUAS.Butaca b on ma.BUTACA_NUMERO = b.butaca_numero and tb.tipo_butaca_codigo = b.butaca_tipo and b.butaca_avion = a.avion_identificador
+join FELICES_PASCUAS.Vuelo v on v.vuelo_codigo = ma.VUELO_CODIGO
+join FELICES_PASCUAS.Compra_Pasaje cp on cp.compra_pasaje_fecha = ma.COMPRA_FECHA and cp.compra_pasaje_numero = ma.COMPRA_NUMERO
+group by ma.PASAJE_CODIGO, e.empresa_id, b.butaca_id, ma.PASAJE_COSTO, ma.PASAJE_PRECIO, cp.compra_pasaje_id, v.vuelo_codigo
+
+--UPDATE: se actualizan los pasajes vendidos seteando id
+update pasaje
+set pasaje.pasaje_venta = vendidos.venta_pasaje_id
+from FELICES_PASCUAS.Pasaje pasaje
+join (
+select pa.pasaje_codigo, vp.venta_pasaje_id
+from gd_esquema.Maestra ma
+join FELICES_PASCUAS.Pasaje pa on pa.pasaje_codigo = ma.PASAJE_CODIGO
+join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_factura = ma.FACTURA_NRO
+) vendidos on vendidos.pasaje_codigo = pasaje.pasaje_codigo
 
 
 --inconsistencias
+--estadias
+--pasajes
 
 --Hola como estas? nono eso esta fuera del alcance del TP, no es solucionar a nivel lógico sino a nivel base de datos, 
 --básicamente se tiene que contemplar estos casos que se identificaron en la base de datos cuando hagan la migración,
@@ -574,18 +597,7 @@ group by fa.factura_nro
 --AND BUTACA_NUMERO LIKE 49
 
 --Estrategia para butacas ya vendidas
---1. Agregar campo a tabla Pasaje llamado 'Repetido' que sea un bit/bool y tomar por orden de fecha de factura (el que compró primero es el que vale, el otro lo asignamos como anómalo). Poner como default false en la columna
+--1. Agregar campo a tabla Pasaje llamado 'Repetido' que sea un bit/bool y tomar por orden de fecha de factura (el que compró primero es el que vale, el otro lo asignamos como anómalo). 
+--Poner como default false en la columna
 --2. Crear tabla PasajeAnomalo/PasajeRepetido que tenga los mismos campos que Pasaje donde insertamos el segundo registro / el repetido.
 --En ambos recorremos dos veces la tabla maestra para la mismos pasajes.
-
---select BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA, count(*) as repetidos
---from gd_esquema.Maestra
---where BUTACA_NUMERO is not null
---group by BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA
---having count(*) > 2
-
---select BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA, count(*) as repetidos
---from gd_esquema.Maestra
---where BUTACA_NUMERO is not null and FACTURA_NRO is not null
---group by BUTACA_NUMERO, BUTACA_TIPO, VUELO_CODIGO, VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA
---having count(*) > 2
