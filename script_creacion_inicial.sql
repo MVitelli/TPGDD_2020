@@ -223,8 +223,8 @@ create table FELICES_PASCUAS.Butaca(
 
 create table FELICES_PASCUAS.Inconsistencia(
     inconsistencia_id decimal(18,0) not null,
-	inconsistencia_atributo nvarchar(50),
-	inconsistencia_detalle nvarchar(255)
+	inconsistencia_atributo text,
+	inconsistencia_detalle text
 );
 
 create table FELICES_PASCUAS.Pasaje_Anomalo(
@@ -580,6 +580,34 @@ join (select pa.pasaje_codigo, vp.venta_pasaje_id
 	  join FELICES_PASCUAS.Pasaje pa on pa.pasaje_codigo = ma.PASAJE_CODIGO
 	  join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_factura = ma.FACTURA_NRO) vendidos on vendidos.pasaje_codigo = pasaje.pasaje_codigo
 
+
+
+/*Inconsistencia de pasajes*/
+insert into	FELICES_PASCUAS.Inconsistencia
+select row_number() over (order by (select NULL)), 'Registro de pasaje duplicado, un registro para compra y otro igual para venta con datos de factura', 
+	   concat(m.COMPRA_NUMERO, '----', m.COMPRA_FECHA, '----', m.EMPRESA_RAZON_SOCIAL, '----', m.PASAJE_CODIGO, '----', m.PASAJE_COSTO, '----', 
+	   m.PASAJE_PRECIO, '----', m.PASAJE_FECHA_COMPRA, '----', m.vuelo_codigo, '----', m.vuelo_fecha_saluda, '----', m.VUELO_FECHA_LLEGADA, '----', 
+	   m.RUTA_AEREA_CODIGO, '----', m.RUTA_AEREA_CIU_ORIG, '----', m.RUTA_AEREA_CIU_DEST, '----', m.BUTACA_NUMERO, '----', m.BUTACA_TIPO, '----',
+	   m.AVION_MODELO, '----', m.AVION_IDENTIFICADOR)
+from gd_esquema.Maestra m 
+where m.PASAJE_CODIGO is not null and m.FACTURA_NRO is null
+
+
+
+/*Inconsistencia de estadías*/
+insert into	FELICES_PASCUAS.Inconsistencia
+select (row_number() over (order by (select null)) + (select count(*) from FELICES_PASCUAS.Inconsistencia)),
+	  'Registro de estadía duplicado, un registro para compra y otro igual para venta con datos de factura', 
+	   concat(m.COMPRA_NUMERO, '----', m.COMPRA_FECHA, '----', m.ESTADIA_FECHA_INI, '----', m.ESTADIA_CANTIDAD_NOCHES, '----', m.ESTADIA_CODIGO, '----', 
+	   m.EMPRESA_RAZON_SOCIAL, '----', m.HOTEL_CALLE, '----', m.HOTEL_NRO_CALLE, '----', m.HOTEL_CANTIDAD_ESTRELLAS, '----', m.HABITACION_NUMERO, '----', 
+	   m.HABITACION_PISO, '----', m.HABITACION_FRENTE, '----', m.habitacion_costo, '----', m.habitacion_precio, '----', m.TIPO_HABITACION_CODIGO, '----',
+	   m.TIPO_HABITACION_DESC)
+from gd_esquema.Maestra m 
+where m.ESTADIA_CODIGO is not null and m.FACTURA_NRO is null
+
+/*INCONSISTENCIAS DE PASAJES Y ESTADÍAS MIGRADAS!!!!!!
+
+FALTARÍA POR ÚLTIMO MIGRAR LA TABLA PASAJE_ANÓMALO, antes elegir estrategia, que por ahora la que nos cierra a todos es la 2)*/
 
 --inconsistencias
 --estadias
