@@ -558,7 +558,7 @@ where ESTADIA_CODIGO is null
 group by fa.factura_nro
 
 
---PASAJE
+
 --INSERT: todos los pasajes con NULL en la FK de venta_pasaje
 insert into FELICES_PASCUAS.Pasaje
 select ma.PASAJE_CODIGO, e.empresa_id, b.butaca_id, ma.PASAJE_COSTO, ma.PASAJE_PRECIO, cp.compra_pasaje_id, NULL, v.vuelo_codigo
@@ -568,7 +568,7 @@ join FELICES_PASCUAS.Avion a on ma.AVION_IDENTIFICADOR = a.avion_identificador
 join FELICES_PASCUAS.Tipo_Butaca tb on ma.BUTACA_TIPO = tb.tipo_butaca_descripcion
 join FELICES_PASCUAS.Butaca b on ma.BUTACA_NUMERO = b.butaca_numero and tb.tipo_butaca_codigo = b.butaca_tipo and b.butaca_avion = a.avion_identificador
 join FELICES_PASCUAS.Vuelo v on v.vuelo_codigo = ma.VUELO_CODIGO
-join FELICES_PASCUAS.Compra_Pasaje cp on cp.compra_pasaje_fecha = ma.COMPRA_FECHA and cp.compra_pasaje_numero = ma.COMPRA_NUMERO
+join FELICES_PASCUAS.Compra_Pasaje cp on cp.compra_pasaje_numero = ma.COMPRA_NUMERO
 group by ma.PASAJE_CODIGO, e.empresa_id, b.butaca_id, ma.PASAJE_COSTO, ma.PASAJE_PRECIO, cp.compra_pasaje_id, v.vuelo_codigo
 
 --UPDATE: se actualizan los pasajes vendidos seteando id
