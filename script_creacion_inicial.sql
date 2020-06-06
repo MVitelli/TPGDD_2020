@@ -575,12 +575,10 @@ group by ma.PASAJE_CODIGO, e.empresa_id, b.butaca_id, ma.PASAJE_COSTO, ma.PASAJE
 update pasaje
 set pasaje.pasaje_venta = vendidos.venta_pasaje_id
 from FELICES_PASCUAS.Pasaje pasaje
-join (
-select pa.pasaje_codigo, vp.venta_pasaje_id
-from gd_esquema.Maestra ma
-join FELICES_PASCUAS.Pasaje pa on pa.pasaje_codigo = ma.PASAJE_CODIGO
-join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_factura = ma.FACTURA_NRO
-) vendidos on vendidos.pasaje_codigo = pasaje.pasaje_codigo
+join (select pa.pasaje_codigo, vp.venta_pasaje_id
+	  from gd_esquema.Maestra ma
+	  join FELICES_PASCUAS.Pasaje pa on pa.pasaje_codigo = ma.PASAJE_CODIGO
+	  join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_factura = ma.FACTURA_NRO) vendidos on vendidos.pasaje_codigo = pasaje.pasaje_codigo
 
 
 --inconsistencias
