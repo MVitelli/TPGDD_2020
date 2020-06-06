@@ -607,7 +607,9 @@ where m.ESTADIA_CODIGO is not null and m.FACTURA_NRO is null
 
 /*INCONSISTENCIAS DE PASAJES Y ESTADÍAS MIGRADAS!!!!!!
 
-FALTARÍA POR ÚLTIMO MIGRAR LA TABLA PASAJE_ANÓMALO, antes elegir estrategia, que por ahora la que nos cierra a todos es la 2)*/
+FALTARÍA POR ÚLTIMO MIGRAR LA TABLA PASAJE_ANÓMALO, antes elegir estrategia, que por ahora la que nos cierra a todos es la 2)
+y luego sacar los pasajes de la tabla pasaje que estén en pasaje_anomalo. Ya que en la tabla pasaje nosotros migramos
+TODOS los pasajes sin tener en cuenta si eran anómalos o no*/
 
 --inconsistencias
 --estadias
