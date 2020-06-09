@@ -605,20 +605,46 @@ select (row_number() over (order by (select null)) + (select count(*) from FELIC
 from gd_esquema.Maestra m 
 where m.ESTADIA_CODIGO is not null and m.FACTURA_NRO is null
 
-/*INCONSISTENCIAS DE PASAJES Y ESTADÍAS MIGRADAS!!!!!!
+/*Pasaje_Anomalo*/
+insert into FELICES_PASCUAS.Pasaje_Anomalo
+select * from FELICES_PASCUAS.Pasaje p
+where p.pasaje_codigo in
+	(select top 1 pas.pasaje_codigo from FELICES_PASCUAS.Pasaje pas
+	join FELICES_PASCUAS.Compra_Pasaje cp on cp.compra_pasaje_id = pas.pasaje_compra
+	join 
+		(select pa.pasaje_vuelo, pa.pasaje_butaca from FELICES_PASCUAS.Pasaje pa
+		group by pa.pasaje_butaca, pa.pasaje_vuelo
+		having count(*) > 1
+		) butaRep on butaRep.pasaje_butaca = pas.pasaje_butaca and butaRep.pasaje_vuelo = pas.pasaje_vuelo
+	where p.pasaje_butaca = pas.pasaje_butaca and p.pasaje_vuelo = pas.pasaje_vuelo
+	order by compra_pasaje_fecha desc
+	)
 
-FALTARÍA POR ÚLTIMO MIGRAR LA TABLA PASAJE_ANÓMALO, antes elegir estrategia, que por ahora la que nos cierra a todos es la 2)
+--Habría que revisar si se puede hacer de alguna mejor manera, por ahora commiteo así
+
+select * from FELICES_PASCUAS.Compra_Pasaje
+order by compra_pasaje_fecha asc
+
+--En esta query se ve que hay dos pasajes con distinto código, misma butaca, mismo vuelo
+--Pero uno está vendido y el otro no, seguimos respetando el mismo criterio de orden de compra?
+
+--select * from FELICES_PASCUAS.Pasaje
+--where pasaje_butaca = 845
+--and pasaje_vuelo = 6667
+
+--Se podría reemplazar el null de pasaje venta (que significa que no fue vendido) por un 0 con la función ISNULL 
+--y comparar eso con la otra butaca que si fue vendida
+--Entonces se conservaría siempre la vendida. (0 < cualquier otro id)
+
+
+
+/*FALTARÍA POR ÚLTIMO MIGRAR LA TABLA PASAJE_ANÓMALO, antes elegir estrategia, que por ahora la que nos cierra a todos es la 2)
 y luego sacar los pasajes de la tabla pasaje que estén en pasaje_anomalo. Ya que en la tabla pasaje nosotros migramos
 TODOS los pasajes sin tener en cuenta si eran anómalos o no*/
 
 --inconsistencias
 --estadias
 --pasajes
-
---Hola como estas? nono eso esta fuera del alcance del TP, no es solucionar a nivel lógico sino a nivel base de datos, 
---básicamente se tiene que contemplar estos casos que se identificaron en la base de datos cuando hagan la migración,
---por ejemplo marcarlos de algún modo con una marca, usar otra estructura en particular para ese caso etc estrategias de ese estilo, 
---para que despues (y eso en un trabajo real) se resuelvan con mas información que no tienen ustedes en este TP. Saludos.
 
 --SELECT * FROM [GD1C2020].[gd_esquema].[Maestra]
 --WHERE COMPRA_NUMERO LIKE 53082573
