@@ -605,6 +605,8 @@ select (row_number() over (order by (select null)) + (select count(*) from FELIC
 from gd_esquema.Maestra m 
 where m.ESTADIA_CODIGO is not null and m.FACTURA_NRO is null
 
+
+
 /*Pasaje_Anomalo*/
 insert into FELICES_PASCUAS.Pasaje_Anomalo
 select * from FELICES_PASCUAS.Pasaje p
@@ -617,41 +619,9 @@ where p.pasaje_codigo in
 		having count(*) > 1
 		) butaRep on butaRep.pasaje_butaca = pas.pasaje_butaca and butaRep.pasaje_vuelo = pas.pasaje_vuelo
 	where p.pasaje_butaca = pas.pasaje_butaca and p.pasaje_vuelo = pas.pasaje_vuelo
-	order by compra_pasaje_fecha desc
+	order by p.pasaje_venta, compra_pasaje_fecha desc
 	)
-
---Habría que revisar si se puede hacer de alguna mejor manera, por ahora commiteo así
-
-select * from FELICES_PASCUAS.Compra_Pasaje
-order by compra_pasaje_fecha asc
-
---En esta query se ve que hay dos pasajes con distinto código, misma butaca, mismo vuelo
---Pero uno está vendido y el otro no, seguimos respetando el mismo criterio de orden de compra?
-
---select * from FELICES_PASCUAS.Pasaje
---where pasaje_butaca = 845
---and pasaje_vuelo = 6667
-
---Se podría reemplazar el null de pasaje venta (que significa que no fue vendido) por un 0 con la función ISNULL 
---y comparar eso con la otra butaca que si fue vendida
---Entonces se conservaría siempre la vendida. (0 < cualquier otro id)
-
-
-
-/*FALTARÍA POR ÚLTIMO MIGRAR LA TABLA PASAJE_ANÓMALO, antes elegir estrategia, que por ahora la que nos cierra a todos es la 2)
-y luego sacar los pasajes de la tabla pasaje que estén en pasaje_anomalo. Ya que en la tabla pasaje nosotros migramos
-TODOS los pasajes sin tener en cuenta si eran anómalos o no*/
-
---inconsistencias
---estadias
---pasajes
-
---SELECT * FROM [GD1C2020].[gd_esquema].[Maestra]
---WHERE COMPRA_NUMERO LIKE 53082573
---AND BUTACA_NUMERO LIKE 49
-
---Estrategia para butacas ya vendidas
---1. Agregar campo a tabla Pasaje llamado 'Repetido' que sea un bit/bool y tomar por orden de fecha de factura (el que compró primero es el que vale, el otro lo asignamos como anómalo). 
---Poner como default false en la columna
---2. Crear tabla PasajeAnomalo/PasajeRepetido que tenga los mismos campos que Pasaje donde insertamos el segundo registro / el repetido.
---En ambos recorremos dos veces la tabla maestra para la mismos pasajes.
+/*Update de Pasaje (borrado de anomalos)*/
+delete FELICES_PASCUAS.Pasaje
+where pasaje_codigo in
+(select pasaje_anomalo_codigo from FELICES_PASCUAS.Pasaje_Anomalo)

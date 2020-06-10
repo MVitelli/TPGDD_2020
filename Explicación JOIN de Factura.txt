@@ -85,3 +85,28 @@ Y es justamente lo que coincide con los datos de la tabla maestra que está más
 es joinear cliente con dni y fecha_nac ya que nunca se va a repetir los clientes
 */
 
+--En esta query se ve que hay dos pasajes con distinto código, misma butaca, mismo vuelo
+--Pero uno está vendido y el otro no, seguimos respetando el mismo criterio de orden de compra?
+
+--select * from FELICES_PASCUAS.Pasaje
+--where pasaje_butaca = 845
+--and pasaje_vuelo = 6667
+--order by pasaje_venta 
+
+--Se podría reemplazar el null de pasaje venta (que significa que no fue vendido) por un 0 con la función ISNULL 
+--y comparar eso con la otra butaca que si fue vendida
+--Entonces se conservaría siempre la vendida. (0 < cualquier otro id)
+
+/*FALTARÍA POR ÚLTIMO MIGRAR LA TABLA PASAJE_ANÓMALO, antes elegir estrategia, que por ahora la que nos cierra a todos es la 2)
+y luego sacar los pasajes de la tabla pasaje que estén en pasaje_anomalo. Ya que en la tabla pasaje nosotros migramos
+TODOS los pasajes sin tener en cuenta si eran anómalos o no*/
+
+--SELECT * FROM [GD1C2020].[gd_esquema].[Maestra]
+--WHERE COMPRA_NUMERO LIKE 53082573
+--AND BUTACA_NUMERO LIKE 49
+
+--Estrategia para butacas ya vendidas
+--1. Agregar campo a tabla Pasaje llamado 'Repetido' que sea un bit/bool y tomar por orden de fecha de factura (el que compró primero es el que vale, el otro lo asignamos como anómalo). 
+--Poner como default false en la columna
+--2. Crear tabla PasajeAnomalo/PasajeRepetido que tenga los mismos campos que Pasaje donde insertamos el segundo registro / el repetido.
+--En ambos recorremos dos veces la tabla maestra para la mismos pasajes.
