@@ -70,6 +70,14 @@ IF OBJECT_ID('FELICES_PASCUAS.Avion','U') IS NOT NULL
 IF OBJECT_ID('FELICES_PASCUAS.Inconsistencia','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.Inconsistencia;
 
+--Revisar
+
+IF OBJECT_ID('FELICES_PASCUAS.Inconsistencia_v2','U') IS NOT NULL
+	DROP TABLE FELICES_PASCUAS.Inconsistencia_v2;
+
+IF OBJECT_ID('FELICES_PASCUAS.Tipo_Inconsistencia','U') IS NOT NULL
+	DROP TABLE FELICES_PASCUAS.Tipo_Inconsistencia;
+
 -------------------- Eliminación del esquema ---------------------------
 
 IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'FELICES_PASCUAS')
@@ -238,6 +246,19 @@ create table FELICES_PASCUAS.Pasaje_Anomalo(
 	pasaje_anomalo_vuelo decimal(18,0) not null
 );
 
+--Revisar
+
+create table FELICES_PASCUAS.Inconsistencia_v2(
+    inconsistencia_id decimal(18,0) not null,
+	tipo_inconsistencia decimal(18,0) not null,
+	inconsistencia_datos text
+);
+
+create table FELICES_PASCUAS.Tipo_Inconsistencia(
+    tipo_inconsistencia_id decimal(18,0) not null,
+	tipo_inconsistencia_tabla text,
+	tipo_inconsistencia_headers text
+);
 -------------------- Creación de primary keys ---------------------------
 
 ALTER TABLE FELICES_PASCUAS.Inconsistencia 
@@ -305,6 +326,15 @@ ADD CONSTRAINT PK_Avion PRIMARY KEY (avion_identificador);
 
 ALTER TABLE FELICES_PASCUAS.Butaca 
 ADD CONSTRAINT PK_Butaca PRIMARY KEY (butaca_id);
+
+--Revisar
+
+ALTER TABLE FELICES_PASCUAS.Inconsistencia_v2
+ADD CONSTRAINT PK_Inconsistencia_v2 PRIMARY KEY (inconsistencia_id);
+
+ALTER TABLE FELICES_PASCUAS.Tipo_Inconsistencia 
+ADD CONSTRAINT PK_Tipo_Inconsistencia PRIMARY KEY (tipo_inconsistencia_id);
+
 
 -------------------- Creación de foreign keys ---------------------------
 
@@ -388,6 +418,11 @@ FOREIGN KEY (butaca_avion) REFERENCES FELICES_PASCUAS.Avion(avion_identificador)
 
 ALTER TABLE FELICES_PASCUAS.Butaca ADD CONSTRAINT FK_Butaca_TipoButaca
 FOREIGN KEY (butaca_tipo) REFERENCES FELICES_PASCUAS.Tipo_Butaca(tipo_butaca_codigo);
+
+--Revisar
+
+ALTER TABLE FELICES_PASCUAS.Inconsistencia_v2 ADD CONSTRAINT FK_Inconsistencia_TipoInconsistencia
+FOREIGN KEY (tipo_inconsistencia) REFERENCES FELICES_PASCUAS.Tipo_Inconsistencia(tipo_inconsistencia_id);
 
 
 -------------------- Migración de tablas ---------------------------
@@ -580,6 +615,37 @@ join (select pa.pasaje_codigo, vp.venta_pasaje_id
 	  join FELICES_PASCUAS.Pasaje pa on pa.pasaje_codigo = ma.PASAJE_CODIGO
 	  join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_factura = ma.FACTURA_NRO) vendidos on vendidos.pasaje_codigo = pasaje.pasaje_codigo
 
+--Revisar
+
+--DECLARE @columnas_pasaje NVARCHAR(MAX)
+
+--SELECT @columnas_pasaje =  STUFF((
+--        select ','+ COLUMN_NAME 
+--        from INFORMATION_SCHEMA.COLUMNS
+--		where TABLE_NAME = 'Pasaje'
+--        FOR XML PATH('')
+--        )
+--        ,1,1,'')
+
+--DECLARE @columnas_estadia NVARCHAR(MAX)
+
+--SELECT @columnas_estadia =  STUFF((
+--        select ','+ COLUMN_NAME 
+--        from INFORMATION_SCHEMA.COLUMNS
+--		where TABLE_NAME = 'Estadia'
+--        FOR XML PATH('')
+--        )
+--        ,1,1,'')
+
+insert into FELICES_PASCUAS.Tipo_Inconsistencia
+values
+(1, 'Pasaje','COMPRA_NUMERO, COMPRA_FECHA, EMPRESA_RAZON_SOCIAL, PASAJE_CODIGO, PASAJE_COSTO, PASAJE_PRECIO, PASAJE_FECHA_COMPRA, VUELO_CODIGO,
+	VUELO_FECHA_SALUDA, VUELO_FECHA_LLEGADA, RUTA_AEREA_CODIGO,RUTA_AEREA_CIU_ORIG, RUTA_AEREA_CIU_DEST, BUTACA_NUMERO,
+	BUTACA_TIPO, AVION_MODELO, AVION_IDENTIFICADOR'),
+(2, 'Estadia', 'COMPRA_NUMERO, COMPRA_FECHA, ESTADIA_FECHA_INI, ESTADIA_CANTIDAD_NOCHES, ESTADIA_CODIGO, EMPRESA_RAZON_SOCIAL, HOTEL_CALLE,
+	HOTEL_NRO_CALLE,  HOTEL_CANTIDAD_ESTRELLAS,  HABITACION_NUMERO, HABITACION_PISO, HABITACION_FRENTE, HABITACION_COSTO, HABITACION_PRECIO, 
+	TIPO_HABITACION_CODIGO, TIPO_HABITACION_DESC')
+
 
 
 /*Inconsistencia de pasajes*/
@@ -594,6 +660,19 @@ where m.PASAJE_CODIGO is not null and m.FACTURA_NRO is null
 
 
 
+/*Inconsistencia de pasajes - version 2*/
+insert into	FELICES_PASCUAS.Inconsistencia_v2
+select row_number() over (order by (select NULL)),
+	   1, 
+	   concat(m.COMPRA_NUMERO, ', ', m.COMPRA_FECHA, ', ', m.EMPRESA_RAZON_SOCIAL, ', ', m.PASAJE_CODIGO, ', ', m.PASAJE_COSTO, ', ', 
+	   m.PASAJE_PRECIO, ', ', m.PASAJE_FECHA_COMPRA, ', ', m.vuelo_codigo, ', ', m.vuelo_fecha_saluda, ', ', m.VUELO_FECHA_LLEGADA, ', ', 
+	   m.RUTA_AEREA_CODIGO, ', ', m.RUTA_AEREA_CIU_ORIG, ', ', m.RUTA_AEREA_CIU_DEST, ', ', m.BUTACA_NUMERO, ', ', m.BUTACA_TIPO, ', ',
+	   m.AVION_MODELO, ', ', m.AVION_IDENTIFICADOR)
+from gd_esquema.Maestra m 
+where m.PASAJE_CODIGO is not null and m.FACTURA_NRO is null
+
+
+
 /*Inconsistencia de estadías*/
 insert into	FELICES_PASCUAS.Inconsistencia
 select (row_number() over (order by (select null)) + (select count(*) from FELICES_PASCUAS.Inconsistencia)),
@@ -601,6 +680,19 @@ select (row_number() over (order by (select null)) + (select count(*) from FELIC
 	   concat(m.COMPRA_NUMERO, '----', m.COMPRA_FECHA, '----', m.ESTADIA_FECHA_INI, '----', m.ESTADIA_CANTIDAD_NOCHES, '----', m.ESTADIA_CODIGO, '----', 
 	   m.EMPRESA_RAZON_SOCIAL, '----', m.HOTEL_CALLE, '----', m.HOTEL_NRO_CALLE, '----', m.HOTEL_CANTIDAD_ESTRELLAS, '----', m.HABITACION_NUMERO, '----', 
 	   m.HABITACION_PISO, '----', m.HABITACION_FRENTE, '----', m.habitacion_costo, '----', m.habitacion_precio, '----', m.TIPO_HABITACION_CODIGO, '----',
+	   m.TIPO_HABITACION_DESC)
+from gd_esquema.Maestra m 
+where m.ESTADIA_CODIGO is not null and m.FACTURA_NRO is null
+
+
+
+/*Inconsistencia de estadías - version 2*/
+insert into	FELICES_PASCUAS.Inconsistencia_v2
+select (row_number() over (order by (select null)) + (select count(*) from FELICES_PASCUAS.Inconsistencia)),
+	   2, 
+	   concat(m.COMPRA_NUMERO, ', ', m.COMPRA_FECHA, ', ', m.ESTADIA_FECHA_INI, ', ', m.ESTADIA_CANTIDAD_NOCHES, ', ', m.ESTADIA_CODIGO, ', ', 
+	   m.EMPRESA_RAZON_SOCIAL, ', ', m.HOTEL_CALLE, ', ', m.HOTEL_NRO_CALLE, ', ', m.HOTEL_CANTIDAD_ESTRELLAS, ', ', m.HABITACION_NUMERO, ', ', 
+	   m.HABITACION_PISO, ', ', m.HABITACION_FRENTE, ', ', m.habitacion_costo, ', ', m.habitacion_precio, ', ', m.TIPO_HABITACION_CODIGO, ', ',
 	   m.TIPO_HABITACION_DESC)
 from gd_esquema.Maestra m 
 where m.ESTADIA_CODIGO is not null and m.FACTURA_NRO is null
