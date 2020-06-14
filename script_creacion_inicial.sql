@@ -226,7 +226,7 @@ create table FELICES_PASCUAS.Butaca(
 
 create table FELICES_PASCUAS.Inconsistencia(
     inconsistencia_id decimal(18,0) not null,
-	inconsistencia_atributo text,
+	tipo_inconsistencia decimal(18,0) not null,
 	inconsistencia_detalle text
 );
 
