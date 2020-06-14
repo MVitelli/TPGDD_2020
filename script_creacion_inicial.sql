@@ -226,7 +226,7 @@ create table FELICES_PASCUAS.Butaca(
 
 create table FELICES_PASCUAS.Inconsistencia(
     inconsistencia_id decimal(18,0) not null,
-	tipo_inconsistencia decimal(18,0) not null,
+	inconsistencia_tipo decimal(18,0) not null,
 	inconsistencia_detalle text
 );
 
@@ -401,7 +401,7 @@ ALTER TABLE FELICES_PASCUAS.Butaca ADD CONSTRAINT FK_Butaca_TipoButaca
 FOREIGN KEY (butaca_tipo) REFERENCES FELICES_PASCUAS.Tipo_Butaca(tipo_butaca_codigo);
 
 ALTER TABLE FELICES_PASCUAS.Inconsistencia ADD CONSTRAINT FK_Inconsistencia_TipoInconsistencia
-FOREIGN KEY (tipo_inconsistencia) REFERENCES FELICES_PASCUAS.Tipo_Inconsistencia(tipo_inconsistencia_id);
+FOREIGN KEY (inconsistencia_tipo) REFERENCES FELICES_PASCUAS.Tipo_Inconsistencia(tipo_inconsistencia_id);
 
 -------------------- Migración de tablas ---------------------------
 
