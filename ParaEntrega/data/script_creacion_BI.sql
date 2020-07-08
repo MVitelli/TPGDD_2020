@@ -68,7 +68,7 @@ create table FELICES_PASCUAS.D_Tiempo(
 );
 
 create table FELICES_PASCUAS.D_Pasaje(
-	pasaje_codigo decimal(18,0) not null,
+	pasaje_id decimal(18,0) not null,
 	pasaje_costo decimal(18,2) not null,
 	pasaje_precio decimal (18,2) not null,
 	pasaje_costo_extra decimal (18,2),
