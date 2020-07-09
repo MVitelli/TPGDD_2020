@@ -107,7 +107,7 @@ create table FELICES_PASCUAS.D_Tipo_Habitacion(
 );
 
 create table FELICES_PASCUAS.D_Habitacion(
-	habitacion_id decimal(18,0) not null, --hacerlo autoincremental
+	habitacion_id int identity(1,1),
 	habitacion_hotel_calle nvarchar(50) not null,
 	habitacion_hotel_calle_nro decimal (18,0) not null,
 	habitacion_tipo nvarchar(50) not null,
@@ -156,4 +156,9 @@ ADD CONSTRAINT PK_D_Tipo_Habitacion PRIMARY KEY (tipo_habitacion_id);
 
 ALTER TABLE FELICES_PASCUAS.D_Habitacion
 ADD CONSTRAINT PK_D_Habitacion PRIMARY KEY (habitacion_id);
+
+-------------------- Creación de foreign keys ---------------------------
+
+-------------------- Migración de tablas OLTP a tablas OLAP  --------------------
+
 
