@@ -62,7 +62,7 @@ create table FELICES_PASCUAS.D_Proveedor(
 );
 
 create table FELICES_PASCUAS.D_Tiempo(
-	tiempo_id decimal(18,0) not null,
+	tiempo_id int identity(1,1),
 	tiempo_mes int not null,
 	tiempo_anio int not null
 );
@@ -81,8 +81,8 @@ create table FELICES_PASCUAS.D_Pasaje(
 
 create table FELICES_PASCUAS.D_Ruta(
 	ruta_id decimal(18,0) not null,
-	ruta_ciu_orig decimal(18,0) not null,
-	ruta_ciu_dest decimal(18,0) not null
+	ruta_ciu_orig nvarchar(255) not null,
+	ruta_ciu_dest nvarchar(255) not null
 );
 
 create table FELICES_PASCUAS.D_Tipo_Pasaje(
@@ -106,20 +106,20 @@ create table FELICES_PASCUAS.D_Tipo_Habitacion(
 	cantidad_camas int not null
 );
 
-create table FELICES_PASCUAS.D_Habitacion(
-	habitacion_id int identity(1,1),
-	habitacion_hotel_calle nvarchar(50) not null,
-	habitacion_hotel_calle_nro decimal (18,0) not null,
-	habitacion_tipo nvarchar(50) not null,
-	habitacion_frente nvarchar(50),
-	habitacion_costo decimal(18,2),
-	habitacion_precio decimal (18,2),
-	habitacion_cargo_extra decimal (18,0),
-	habitacion_check_in datetime2(3),
-	habitacion_check_out datetime2(3),
-	habitacion_cliente decimal(18,0),
-	habitacion_sucursal nvarchar(255),
-	habitacion_factura_fecha datetime2(3)
+create table FELICES_PASCUAS.D_Estadia(
+	estadia_id int identity(1,1),
+	estadia_hotel_calle nvarchar(50) not null,
+	estadia_hotel_calle_nro decimal (18,0) not null,
+	estadia_tipo nvarchar(50) not null,
+	estadia_frente nvarchar(50),
+	estadia_costo decimal(18,2),
+	estadia_precio decimal (18,2),
+	estadia_cargo_extra decimal (18,0),
+	estadia_check_in datetime2(3),
+	estadia_check_out datetime2(3),
+	estadia_cliente decimal(18,0),
+	estadia_sucursal nvarchar(255), --sucursal de la venta
+	estadia_factura_fecha datetime2(3)
 );
 
 -------------------- Creación de primary keys ---------------------------
@@ -154,11 +154,91 @@ ADD CONSTRAINT PK_D_Ciudad PRIMARY KEY (ciudad_id);
 ALTER TABLE FELICES_PASCUAS.D_Tipo_Habitacion
 ADD CONSTRAINT PK_D_Tipo_Habitacion PRIMARY KEY (tipo_habitacion_id);
 
-ALTER TABLE FELICES_PASCUAS.D_Habitacion
-ADD CONSTRAINT PK_D_Habitacion PRIMARY KEY (habitacion_id);
+ALTER TABLE FELICES_PASCUAS.D_Estadia
+ADD CONSTRAINT PK_D_Estadia PRIMARY KEY (estadia_id);
 
 -------------------- Creación de foreign keys ---------------------------
 
+
+
 -------------------- Migración de tablas OLTP a tablas OLAP  --------------------
 
+--Ciudad
+insert into FELICES_PASCUAS.D_Ciudad 
+	select * from FELICES_PASCUAS.Ciudad
 
+
+
+--Ruta
+insert into FELICES_PASCUAS.D_Ruta
+	select r.ruta_aerea_id, c.ciudad_descripcion, c2.ciudad_descripcion from FELICES_PASCUAS.Ruta_Aerea r
+		join FELICES_PASCUAS.Ciudad c on c.ciudad_codigo = r.ruta_aerea_ciu_orig
+		join FELICES_PASCUAS.Ciudad c2 on c2.ciudad_codigo = r.ruta_aerea_ciu_dest 
+
+
+
+--Avion
+insert into FELICES_PASCUAS.D_Avion
+	select * from FELICES_PASCUAS.Avion
+
+
+
+--Tiempo
+
+--agrupamos todas las operaciones que tengan fechas y agarramos el max/min para obtener mes y año de éstas. No fue necesario usar max/min porque están todos los meses del intervalo
+insert into FELICES_PASCUAS.D_Tiempo
+	select YEAR(compra_pasaje_fecha) as anio, MONTH(compra_pasaje_fecha) as mes from FELICES_PASCUAS.Compra_Pasaje 
+		UNION
+	select YEAR(estadia_fecha_compra) as anio, MONTH(estadia_fecha_compra) as mes from FELICES_PASCUAS.Compra_Estadia 
+		UNION
+	select YEAR(estadia_fecha_inicio) as anio, MONTH(estadia_fecha_inicio) as mes from FELICES_PASCUAS.Compra_Estadia
+		UNION
+	select YEAR(DATEADD(day, estadia_cant_noches, estadia_fecha_inicio)) as anio, MONTH(DATEADD(day, estadia_cant_noches, estadia_fecha_inicio)) as mes from FELICES_PASCUAS.Compra_Estadia
+		UNION
+	select YEAR(factura_fecha) as anio, MONTH(factura_fecha) as mes from FELICES_PASCUAS.Factura
+		UNION
+	select YEAR(venta_estadia_check_in) as anio, MONTH(venta_estadia_check_in) as mes from FELICES_PASCUAS.Venta_Estadia
+		UNION
+	select YEAR(venta_estadia_check_out) as anio, MONTH(venta_estadia_check_out) as mes from FELICES_PASCUAS.Venta_Estadia
+		UNION
+	select YEAR(vuelo_fecha_salida) as anio, MONTH(vuelo_fecha_salida) as mes from FELICES_PASCUAS.Vuelo
+		UNION
+	select YEAR(vuelo_fecha_llegada) as anio, MONTH(vuelo_fecha_llegada) as mes from FELICES_PASCUAS.Vuelo
+order by anio, mes
+
+
+
+--Cliente
+insert into FELICES_PASCUAS.D_Cliente
+	select cliente_id,YEAR(GETDATE()) - YEAR(cliente_fecha_nacimiento), cliente_dni, cliente_apellido, cliente_nombre, cliente_mail, cliente_telefono
+	from FELICES_PASCUAS.Cliente
+
+
+
+--Sucursal
+insert into FELICES_PASCUAS.D_Sucursal
+	select * from FELICES_PASCUAS.Sucursal
+
+
+
+--Tipo_Pasaje
+insert into FELICES_PASCUAS.D_Tipo_Pasaje
+	select * from FELICES_PASCUAS.Tipo_Butaca
+
+
+
+--Proveedor
+insert into FELICES_PASCUAS.D_Proveedor
+	select * from FELICES_PASCUAS.Empresa
+
+
+
+--Tipo_Habitacion
+--asumimos que simple = 1 cama, doble = 2, triple = 3, cuadruple = 4, king = 4
+insert into FELICES_PASCUAS.D_Tipo_Habitacion
+	values
+	(1, 'Base Simple', 1),
+	(1, 'Base Doble', 2),
+	(1, 'Base Triple', 3),
+	(1, 'Base Cuadruple', 4),
+	(1, 'King', 4)
