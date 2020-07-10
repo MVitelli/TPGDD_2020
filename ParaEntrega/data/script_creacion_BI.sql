@@ -16,9 +16,6 @@ IF OBJECT_ID('FELICES_PASCUAS.D_Proveedor','U') IS NOT NULL
 IF OBJECT_ID('FELICES_PASCUAS.D_Tiempo','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.D_Tiempo;
 
-IF OBJECT_ID('FELICES_PASCUAS.D_Pasaje','U') IS NOT NULL
-	DROP TABLE FELICES_PASCUAS.D_Pasaje;
-
 IF OBJECT_ID('FELICES_PASCUAS.D_Ruta','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.D_Ruta;
 
@@ -34,8 +31,8 @@ IF OBJECT_ID('FELICES_PASCUAS.D_Ciudad','U') IS NOT NULL
 IF OBJECT_ID('FELICES_PASCUAS.D_Tipo_Habitacion','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.D_Tipo_Habitacion;
 
-IF OBJECT_ID('FELICES_PASCUAS.D_Habitacion','U') IS NOT NULL
-	DROP TABLE FELICES_PASCUAS.D_Habitacion;
+IF OBJECT_ID('FELICES_PASCUAS.D_Hotel','U') IS NOT NULL
+	DROP TABLE FELICES_PASCUAS.D_Hotel;
 
 -------------------- Creación de tablas ---------------------------
 
@@ -67,18 +64,6 @@ create table FELICES_PASCUAS.D_Tiempo(
 	tiempo_anio int not null
 );
 
-create table FELICES_PASCUAS.D_Pasaje(
-	pasaje_id decimal(18,0) not null,
-	pasaje_costo decimal(18,2) not null,
-	pasaje_precio decimal (18,2) not null,
-	pasaje_costo_extra decimal (18,2),
-	pasaje_vuelo decimal(18,0) not null,
-	pasaje_cliente decimal (18,0) not null,
-	pasaje_sucursal nvarchar(255),
-	pasaje_compra_fecha datetime2(3) not null,
-	pasaje_venta_fecha datetime2(3)
-);
-
 create table FELICES_PASCUAS.D_Ruta(
 	ruta_id decimal(18,0) not null,
 	ruta_ciu_orig nvarchar(255) not null,
@@ -106,22 +91,12 @@ create table FELICES_PASCUAS.D_Tipo_Habitacion(
 	cantidad_camas int not null
 );
 
-create table FELICES_PASCUAS.D_Estadia(
-	estadia_id int identity(1,1),
-	estadia_hotel_calle nvarchar(50) not null,
-	estadia_hotel_calle_nro decimal (18,0) not null,
-	estadia_tipo nvarchar(50) not null,
-	estadia_frente nvarchar(50),
-	estadia_costo decimal(18,2),
-	estadia_precio decimal (18,2),
-	estadia_cargo_extra decimal (18,0),
-	estadia_check_in datetime2(3),
-	estadia_check_out datetime2(3),
-	estadia_cliente decimal(18,0),
-	estadia_sucursal nvarchar(255), --sucursal de la venta
-	estadia_factura_fecha datetime2(3)
+create table FELICES_PASCUAS.D_Hotel(
+	hotel_id decimal(18,0) not null,
+	hotel_calle nvarchar(50),
+	hotel_nro_calle decimal(18,0),
+	hotel_cant_estrellas decimal (18,0)
 );
-
 -------------------- Creación de primary keys ---------------------------
 
 ALTER TABLE FELICES_PASCUAS.D_Cliente 
@@ -135,9 +110,6 @@ ADD CONSTRAINT PK_D_Proveedor PRIMARY KEY (proveedor_id);
 
 ALTER TABLE FELICES_PASCUAS.D_Tiempo 
 ADD CONSTRAINT PK_D_Tiempo PRIMARY KEY (tiempo_id);
-
-ALTER TABLE FELICES_PASCUAS.D_Pasaje
-ADD CONSTRAINT PK_D_Pasaje PRIMARY KEY (pasaje_id);
 
 ALTER TABLE FELICES_PASCUAS.D_Ruta
 ADD CONSTRAINT PK_D_Ruta PRIMARY KEY (ruta_id);
@@ -154,8 +126,8 @@ ADD CONSTRAINT PK_D_Ciudad PRIMARY KEY (ciudad_id);
 ALTER TABLE FELICES_PASCUAS.D_Tipo_Habitacion
 ADD CONSTRAINT PK_D_Tipo_Habitacion PRIMARY KEY (tipo_habitacion_id);
 
-ALTER TABLE FELICES_PASCUAS.D_Estadia
-ADD CONSTRAINT PK_D_Estadia PRIMARY KEY (estadia_id);
+ALTER TABLE FELICES_PASCUAS.D_Hotel
+ADD CONSTRAINT PK_D_Hotel PRIMARY KEY (hotel_id);
 
 -------------------- Creación de foreign keys ---------------------------
 
@@ -236,9 +208,22 @@ insert into FELICES_PASCUAS.D_Proveedor
 --Tipo_Habitacion
 --asumimos que simple = 1 cama, doble = 2, triple = 3, cuadruple = 4, king = 4
 insert into FELICES_PASCUAS.D_Tipo_Habitacion
-	values
-	(1, 'Base Simple', 1),
-	(1, 'Base Doble', 2),
-	(1, 'Base Triple', 3),
-	(1, 'Base Cuadruple', 4),
-	(1, 'King', 4)
+	(tipo_habitacion_id, tipo_habitacion_desc)
+	select * from FELICES_PASCUAS.Tipo_Habitacion
+
+update FELICES_PASCUAS.D_Tipo_Habitacion
+	set cantidad_camas = 1 where tipo_habitacion_desc= 'Base Simple'
+update FELICES_PASCUAS.D_Tipo_Habitacion
+	set cantidad_camas = 2 where tipo_habitacion_desc= 'Base Doble'
+update FELICES_PASCUAS.D_Tipo_Habitacion
+	set cantidad_camas = 3 where tipo_habitacion_desc= 'Base Triple'
+update FELICES_PASCUAS.D_Tipo_Habitacion
+	set cantidad_camas = 4 where tipo_habitacion_desc= 'Base Cuadruple'
+update FELICES_PASCUAS.D_Tipo_Habitacion
+	set cantidad_camas = 4 where tipo_habitacion_desc= 'King'
+
+
+
+--Hotel
+insert into FELICES_PASCUAS.D_Hotel
+	select * from FELICES_PASCUAS.Hotel
