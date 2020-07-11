@@ -544,7 +544,7 @@ order by h.habitacion_id, m.estadia_codigo
 
 
 insert into FELICES_PASCUAS.Venta_Estadia
-select row_number() over (order by (select NULL)), fa.FACTURA_NRO, sum(m.HABITACION_PRECIO) * 0.2, ce.estadia_fecha_inicio, DATEADD(day,ce.estadia_cant_noches,ce.estadia_fecha_inicio)
+select row_number() over (order by (select NULL)), fa.FACTURA_NRO, sum(m.HABITACION_COSTO) * 0.2, ce.estadia_fecha_inicio, DATEADD(day,ce.estadia_cant_noches,ce.estadia_fecha_inicio)
 from gd_esquema.Maestra m
 join FELICES_PASCUAS.Factura fa on fa.factura_nro = m.FACTURA_NRO
 join FELICES_PASCUAS.Compra_Estadia ce on ce.estadia_codigo = m.ESTADIA_CODIGO 
@@ -564,7 +564,7 @@ group by ve.venta_estadia_id, ha.habitacion_id
 
 
 insert into FELICES_PASCUAS.Venta_Pasaje
-select row_number() over (order by (select NULL)), fa.factura_nro, sum(m.PASAJE_PRECIO) * 0.2
+select row_number() over (order by (select NULL)), fa.factura_nro, sum(m.PASAJE_COSTO) * 0.2
 from gd_esquema.Maestra m
 join FELICES_PASCUAS.Factura fa on fa.factura_nro = m.FACTURA_NRO
 where ESTADIA_CODIGO is null
