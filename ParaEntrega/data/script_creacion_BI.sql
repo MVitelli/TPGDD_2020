@@ -273,5 +273,22 @@ insert into FELICES_PASCUAS.D_Hotel
 
 
 --H_Venta_Pasaje
+select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea, 
+	SUM(p.pasaje_costo), SUM(p.pasaje_precio) + (select venta_pasaje_cargo_extra from FELICES_PASCUAS.Venta_Pasaje where venta_pasaje_id = vp.venta_pasaje_id),
+	SUM(p.pasaje_precio) + (select venta_pasaje_cargo_extra from FELICES_PASCUAS.Venta_Pasaje where venta_pasaje_id = vp.venta_pasaje_id) - SUM(p.pasaje_costo),
+	COUNT(*)
+from FELICES_PASCUAS.Pasaje p
+	join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_id = p.pasaje_venta
+	join FELICES_PASCUAS.Factura f on f.factura_nro = vp.venta_pasaje_factura
+	join FELICES_PASCUAS.Vuelo v on v.vuelo_codigo = p.pasaje_vuelo
+	join FELICES_PASCUAS.Butaca b on b.butaca_id = p.pasaje_butaca
+group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea, venta_pasaje_id 
 
-
+--select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, COUNT(*) as pasaj_vend from FELICES_PASCUAS.Pasaje p
+--	join FELICES_PASCUAS.Venta_Pasaje vp on p.pasaje_venta = vp.venta_pasaje_id
+--	join FELICES_PASCUAS.Factura f on f.factura_nro = vp.venta_pasaje_factura
+--group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente
+--order by pasaj_vend desc 
+--205977
+--(select venta_pasaje_cargo_extra from FELICES_PASCUAS.Venta_Pasaje where venta_pasaje_id = vp.venta_pasaje_id) 
+-- revisar si hay alguna forma mejor, por ej: multiplicando por el 0.2
