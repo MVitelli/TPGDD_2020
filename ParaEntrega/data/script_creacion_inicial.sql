@@ -111,7 +111,7 @@ create table FELICES_PASCUAS.Hotel(
 create table FELICES_PASCUAS.Venta_Estadia(
 	venta_estadia_id decimal(18,0) not null,
 	venta_estadia_factura decimal(18,0) not null,
-	venta_estadia_cargo_extra decimal (18,0),
+	venta_estadia_cargo_extra decimal (18,2),
 	venta_estadia_check_in datetime2(3),
 	venta_estadia_check_out datetime2(3)
 );

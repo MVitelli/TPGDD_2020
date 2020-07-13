@@ -80,7 +80,7 @@ create table FELICES_PASCUAS.D_Avion(
 create table FELICES_PASCUAS.D_Tipo_Habitacion(
 	tipo_habitacion_id decimal(18,0) not null,
 	tipo_habitacion_desc nvarchar(50) not null,
-	cantidad_camas int default 0
+	tipo_habitacion_cantidad_camas int default 0
 );
 
 create table FELICES_PASCUAS.D_Hotel(
@@ -254,15 +254,15 @@ insert into FELICES_PASCUAS.D_Tipo_Habitacion
 	select * from FELICES_PASCUAS.Tipo_Habitacion
 
 update FELICES_PASCUAS.D_Tipo_Habitacion
-	set cantidad_camas = 1 where tipo_habitacion_desc= 'Base Simple'
+	set tipo_habitacion_cantidad_camas = 1 where tipo_habitacion_desc= 'Base Simple'
 update FELICES_PASCUAS.D_Tipo_Habitacion
-	set cantidad_camas = 2 where tipo_habitacion_desc= 'Base Doble'
+	set tipo_habitacion_cantidad_camas = 2 where tipo_habitacion_desc= 'Base Doble'
 update FELICES_PASCUAS.D_Tipo_Habitacion
-	set cantidad_camas = 3 where tipo_habitacion_desc= 'Base Triple'
+	set tipo_habitacion_cantidad_camas = 3 where tipo_habitacion_desc= 'Base Triple'
 update FELICES_PASCUAS.D_Tipo_Habitacion
-	set cantidad_camas = 4 where tipo_habitacion_desc= 'Base Cuadruple'
+	set tipo_habitacion_cantidad_camas = 4 where tipo_habitacion_desc= 'Base Cuadruple'
 update FELICES_PASCUAS.D_Tipo_Habitacion
-	set cantidad_camas = 4 where tipo_habitacion_desc= 'King'
+	set tipo_habitacion_cantidad_camas = 4 where tipo_habitacion_desc= 'King'
 
 
 
@@ -273,16 +273,19 @@ insert into FELICES_PASCUAS.D_Hotel
 
 
 --H_Venta_Pasaje
-select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea, 
-	SUM(p.pasaje_costo), SUM(p.pasaje_precio) + (select venta_pasaje_cargo_extra from FELICES_PASCUAS.Venta_Pasaje where venta_pasaje_id = vp.venta_pasaje_id),
-	SUM(p.pasaje_precio) + (select venta_pasaje_cargo_extra from FELICES_PASCUAS.Venta_Pasaje where venta_pasaje_id = vp.venta_pasaje_id) - SUM(p.pasaje_costo),
-	COUNT(*)
-from FELICES_PASCUAS.Pasaje p
-	join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_id = p.pasaje_venta
-	join FELICES_PASCUAS.Factura f on f.factura_nro = vp.venta_pasaje_factura
-	join FELICES_PASCUAS.Vuelo v on v.vuelo_codigo = p.pasaje_vuelo
-	join FELICES_PASCUAS.Butaca b on b.butaca_id = p.pasaje_butaca
-group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea, venta_pasaje_id 
+insert into FELICES_PASCUAS.H_Venta_Pasaje
+	select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea, 
+		SUM(p.pasaje_costo),
+		SUM(p.pasaje_precio) + SUM(vp.venta_pasaje_cargo_extra),
+		SUM(p.pasaje_precio) + SUM(vp.venta_pasaje_cargo_extra) - SUM(p.pasaje_costo),
+		COUNT(*)
+	from FELICES_PASCUAS.Pasaje p
+		join FELICES_PASCUAS.Venta_Pasaje vp on vp.venta_pasaje_id = p.pasaje_venta
+		join FELICES_PASCUAS.Factura f on f.factura_nro = vp.venta_pasaje_factura
+		join FELICES_PASCUAS.Vuelo v on v.vuelo_codigo = p.pasaje_vuelo
+		join FELICES_PASCUAS.Butaca b on b.butaca_id = p.pasaje_butaca
+	group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea--, venta_pasaje_id
+	order by YEAR(f.factura_fecha), MONTH(f.factura_fecha)
 
 --select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, COUNT(*) as pasaj_vend from FELICES_PASCUAS.Pasaje p
 --	join FELICES_PASCUAS.Venta_Pasaje vp on p.pasaje_venta = vp.venta_pasaje_id
@@ -292,3 +295,37 @@ group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pas
 --205977
 --(select venta_pasaje_cargo_extra from FELICES_PASCUAS.Venta_Pasaje where venta_pasaje_id = vp.venta_pasaje_id) 
 -- revisar si hay alguna forma mejor, por ej: multiplicando por el 0.2
+
+
+--H_Venta_Estadia
+insert into FELICES_PASCUAS.H_Venta_Estadia
+	select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, ce.estadia_empresa, f.factura_sucursal, h.habitacion_tipo, h.habitacion_hotel,
+		SUM(h.habitacion_costo),
+		SUM(h.habitacion_precio) + SUM(ve.venta_estadia_cargo_extra),
+		SUM(h.habitacion_precio) + SUM(ve.venta_estadia_cargo_extra) - SUM(h.habitacion_costo),
+		COUNT(h.habitacion_id),
+		SUM(dth.tipo_habitacion_cantidad_camas)
+	from FELICES_PASCUAS.Habitacion h
+		join FELICES_PASCUAS.Venta_Estadia_Habitacion veh on veh.habitacion_id = h.habitacion_id
+		join FELICES_PASCUAS.Venta_Estadia ve on ve.venta_estadia_id = veh.venta_estadia_id
+		join FELICES_PASCUAS.Factura f on f.factura_nro = ve.venta_estadia_factura
+		join FELICES_PASCUAS.Estadia_Habitacion eh on eh.habitacion_id = h.habitacion_id
+		join FELICES_PASCUAS.Compra_Estadia ce on ce.estadia_codigo = eh.estadia_codigo
+		join FELICES_PASCUAS.D_Tipo_Habitacion dth on h.habitacion_tipo = dth.tipo_habitacion_id
+	group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, ce.estadia_empresa, f.factura_sucursal, h.habitacion_tipo, h.habitacion_hotel
+	order by YEAR(f.factura_fecha), MONTH(f.factura_fecha)
+
+select f.factura_cliente, COUNT(*) from FELICES_PASCUAS.Venta_Estadia ve
+	join FELICES_PASCUAS.Factura f on f.factura_nro = ve.venta_estadia_factura
+	join FELICES_PASCUAS.Venta_Estadia_Habitacion veh on veh.venta_estadia_id = ve.venta_estadia_id
+group by f.factura_cliente, ve.venta_estadia_id
+
+
+select venta_estadia_id, COUNT(*) from FELICES_PASCUAS.Venta_Estadia_Habitacion
+	group by venta_estadia_id
+	having COUNT(*) > 1
+
+
+select estadia_codigo, COUNT(*) from FELICES_PASCUAS.Estadia_Habitacion
+	group by estadia_codigo
+	having COUNT(*) > 1
