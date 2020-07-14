@@ -34,6 +34,14 @@ IF OBJECT_ID('FELICES_PASCUAS.D_Tipo_Habitacion','U') IS NOT NULL
 IF OBJECT_ID('FELICES_PASCUAS.D_Hotel','U') IS NOT NULL
 	DROP TABLE FELICES_PASCUAS.D_Hotel;
 
+IF OBJECT_ID('FELICES_PASCUAS.V_Ganancia_Total_Estadias','V') IS NOT NULL
+	DROP VIEW FELICES_PASCUAS.V_Ganancia_Total_Estadias;
+
+IF OBJECT_ID('FELICES_PASCUAS.V_Camas_Vendidas_Marzo_2018','V') IS NOT NULL
+	DROP VIEW FELICES_PASCUAS.V_Camas_Vendidas_Marzo_2018;
+
+IF OBJECT_ID('FELICES_PASCUAS.V_Cantidad_Pasajes_Ejecutiva','V') IS NOT NULL
+	DROP VIEW FELICES_PASCUAS.V_Cantidad_Pasajes_Ejecutiva;
 
 -------------------- Creación de tablas ---------------------------
 
@@ -285,7 +293,7 @@ insert into FELICES_PASCUAS.H_Venta_Pasaje
 		join FELICES_PASCUAS.Vuelo v on v.vuelo_codigo = p.pasaje_vuelo
 		join FELICES_PASCUAS.Butaca b on b.butaca_id = p.pasaje_butaca
 	group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea--, venta_pasaje_id
-	order by YEAR(f.factura_fecha), MONTH(f.factura_fecha)
+	order by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente desc  
 
 --select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, COUNT(*) as pasaj_vend from FELICES_PASCUAS.Pasaje p
 --	join FELICES_PASCUAS.Venta_Pasaje vp on p.pasaje_venta = vp.venta_pasaje_id
@@ -293,8 +301,7 @@ insert into FELICES_PASCUAS.H_Venta_Pasaje
 --group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente
 --order by pasaj_vend desc 
 --205977
---(select venta_pasaje_cargo_extra from FELICES_PASCUAS.Venta_Pasaje where venta_pasaje_id = vp.venta_pasaje_id) 
--- revisar si hay alguna forma mejor, por ej: multiplicando por el 0.2
+
 
 
 --H_Venta_Estadia
@@ -310,22 +317,34 @@ insert into FELICES_PASCUAS.H_Venta_Estadia
 		join FELICES_PASCUAS.Venta_Estadia ve on ve.venta_estadia_id = veh.venta_estadia_id
 		join FELICES_PASCUAS.Factura f on f.factura_nro = ve.venta_estadia_factura
 		join FELICES_PASCUAS.Estadia_Habitacion eh on eh.habitacion_id = h.habitacion_id
-		join FELICES_PASCUAS.Compra_Estadia ce on ce.estadia_codigo = eh.estadia_codigo
+		join FELICES_PASCUAS.Compra_Estadia ce on ce.estadia_codigo = eh.estadia_codigo and eh.habitacion_id = h.habitacion_id
 		join FELICES_PASCUAS.D_Tipo_Habitacion dth on h.habitacion_tipo = dth.tipo_habitacion_id
-	group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, ce.estadia_empresa, f.factura_sucursal, h.habitacion_tipo, h.habitacion_hotel
-	order by YEAR(f.factura_fecha), MONTH(f.factura_fecha)
-
-select f.factura_cliente, COUNT(*) from FELICES_PASCUAS.Venta_Estadia ve
-	join FELICES_PASCUAS.Factura f on f.factura_nro = ve.venta_estadia_factura
-	join FELICES_PASCUAS.Venta_Estadia_Habitacion veh on veh.venta_estadia_id = ve.venta_estadia_id
-group by f.factura_cliente, ve.venta_estadia_id
+	group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente,  ce.estadia_empresa, f.factura_sucursal, h.habitacion_tipo, h.habitacion_hotel
+	order by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente desc
 
 
-select venta_estadia_id, COUNT(*) from FELICES_PASCUAS.Venta_Estadia_Habitacion
-	group by venta_estadia_id
-	having COUNT(*) > 1
+GO
+--select habitacion_id, COUNT(*) from FELICES_PASCUAS.Estadia_Habitacion
+--	group by habitacion_id
+-- este select muestra que cada habitación fue alquilada 37 veces, este dato viene de la maestra también
 
+--select * from FELICES_PASCUAS.Venta_Estadia_Habitacion
+-- este select da 15688 rows,que son las que se insertan en el select de arriba, es decir que se respeta 1 insert por cada venta
 
-select estadia_codigo, COUNT(*) from FELICES_PASCUAS.Estadia_Habitacion
-	group by estadia_codigo
-	having COUNT(*) > 1
+---Views de ejemplo
+---Consulta por ganancia total de estadías
+
+CREATE VIEW FELICES_PASCUAS.V_Ganancia_Total_Estadias AS
+	select SUM(hve.h_v_estadia_ganancia) as ganancia_estadia from FELICES_PASCUAS.H_Venta_Estadia hve
+go		
+---Consulta por cantidad de camas vendidas en el mes de marzo 2018
+CREATE VIEW FELICES_PASCUAS.V_Camas_Vendidas_Marzo_2018 AS
+	select SUM(hve.h_v_estadia_cant_camas_vendidas) as camas_vendidas from FELICES_PASCUAS.H_Venta_Estadia hve
+		where hve.h_v_estadia_anio = 2018 and hve.h_v_estadia_mes = 3
+go
+---Consulta por cantidad de pasajes vendidos de clase 'Ejecutiva'
+CREATE VIEW FELICES_PASCUAS.V_Cantidad_Pasajes_Ejecutiva AS
+	select SUM(hvp.h_v_pasaje_cant_vendidos) as cant_pasajes_ejecutiva from FELICES_PASCUAS.H_Venta_Pasaje hvp
+		join FELICES_PASCUAS.D_Tipo_Pasaje dtp on dtp.tipo_pasaje_id = hvp.h_v_pasaje_tipo_pasaje
+		where dtp.tipo_pasaje_descripcion = 'Ejecutiva'
+go
