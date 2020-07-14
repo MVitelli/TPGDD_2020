@@ -295,13 +295,6 @@ insert into FELICES_PASCUAS.H_Venta_Pasaje
 	group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, p.pasaje_empresa, f.factura_sucursal, v.vuelo_avion,b.butaca_tipo, v.vuelo_ruta_aerea--, venta_pasaje_id
 	order by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente desc  
 
---select YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente, COUNT(*) as pasaj_vend from FELICES_PASCUAS.Pasaje p
---	join FELICES_PASCUAS.Venta_Pasaje vp on p.pasaje_venta = vp.venta_pasaje_id
---	join FELICES_PASCUAS.Factura f on f.factura_nro = vp.venta_pasaje_factura
---group by YEAR(f.factura_fecha), MONTH(f.factura_fecha), f.factura_cliente
---order by pasaj_vend desc 
---205977
-
 
 
 --H_Venta_Estadia
@@ -324,12 +317,6 @@ insert into FELICES_PASCUAS.H_Venta_Estadia
 
 
 GO
---select habitacion_id, COUNT(*) from FELICES_PASCUAS.Estadia_Habitacion
---	group by habitacion_id
--- este select muestra que cada habitación fue alquilada 37 veces, este dato viene de la maestra también
-
---select * from FELICES_PASCUAS.Venta_Estadia_Habitacion
--- este select da 15688 rows,que son las que se insertan en el select de arriba, es decir que se respeta 1 insert por cada venta
 
 ---Views de ejemplo
 ---Consulta por ganancia total de estadías
